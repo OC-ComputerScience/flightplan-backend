@@ -1,0 +1,13 @@
+[Unit]
+Description=NodeJS Flight Plan
+After=network.target
+ 
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/nodeapps/2025/flight-plan/t1
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+ 
+[Install]
+WantedBy=multi-user.target
