@@ -26,6 +26,10 @@ const User = SequelizeInstance.define("user", {
   profileDescription: {
     type: Sequelize.STRING(255),
   },
+  phoneNum: {
+    type: Sequelize.STRING(10),
+    allowNull: true,
+  },
 });
 
 export default User;

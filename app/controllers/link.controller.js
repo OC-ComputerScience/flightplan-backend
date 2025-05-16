@@ -1,23 +1,77 @@
 // link.controller.js
-import Link from "../models/link.model.js"; // Adjust the import according to your setup
+import Link from "../sequelizeUtils/link.js"; // Adjust the import according to your setup
 
 const exports = {};
-exports.findAllLinksForStudent = async (req, res) => {
-  const studentId = req.params.id;
-
-  try {
-    const links = await Link.findAll({
-      where: { studentId },
-      attributes: ["id", "websiteName", "link", "createdAt", "updatedAt"],
+exports.findAllForStudent = async (req, res) => {
+  await Link.findAllForStudent(req.params.id)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving links.",
+      });
     });
+};
 
-    res.status(200).json(links); // Send the links as a response
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ message: "Error fetching links", error: err.message });
-  }
+exports.findAllForUser = async (req, res) => {
+  await Link.findAllForUser(req.params.id)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving links.",
+      });
+    });
+};
+
+exports.findOne = async (req, res) => {
+  await Link.findOne(req.params.id)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving link.",
+      });
+    });
+};
+
+exports.create = async (req, res) => {
+  await Link.create(req.body)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating link.",
+      });
+    });
+};
+
+exports.update = async (req, res) => {
+  await Link.update(req.body, req.params.id)
+    .then(() => {
+      res.send({ message: "Link updated successfully!" });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while updating link.",
+      });
+    });
+};
+
+exports.delete = async (req, res) => {
+  await Link.delete(req.params.id)
+    .then(() => {
+      res.send({ message: "Link deleted successfully!" });
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while deleting link.",
+      });
+    });
 };
 
 export default exports;
