@@ -11,7 +11,7 @@ exports.findAllForUser = async (req, res) => {
       res.status(500).send({
         message:
           err.message ||
-          `Some error ocurred while retrieving experience for UserId:${userId}`,
+          `Some error ocurred while retrieving experience for UserId:${req.params.userId}`,
       });
     });
 };

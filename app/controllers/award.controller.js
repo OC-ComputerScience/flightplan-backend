@@ -40,7 +40,7 @@ exports.findOne = async (req, res) => {
         });
       }
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(500).send({
         message: "Error retrieving Award with id=" + req.params.id,
       });
@@ -50,12 +50,12 @@ exports.findOne = async (req, res) => {
 // Update an Award by the id in the request
 exports.update = async (req, res) => {
   await Award.update(req.body, req.params.id)
-    .then((num) => {
+    .then(() => {
       res.send({
         message: "Award was updated successfully.",
       });
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(500).send({
         message: "Error updating Award with id=" + req.params.id,
       });
@@ -65,12 +65,12 @@ exports.update = async (req, res) => {
 // Delete an Award with the specified id in the request
 exports.delete = async (req, res) => {
   await Award.delete(req.params.id)
-    .then((num) => {
+    .then(() => {
       res.send({
         message: "Award was deleted successfully!",
       });
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(500).send({
         message: "Could not delete Award with id=" + req.params.id,
       });

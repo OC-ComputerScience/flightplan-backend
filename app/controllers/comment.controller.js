@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   await Comment.update(req.body, req.params.id)
-    .then((data) => {
+    .then(() => {
       res.send({
         message: `Successfully updated Comment with id of ${req.params.id}!`,
       });

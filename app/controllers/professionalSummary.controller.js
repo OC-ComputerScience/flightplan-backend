@@ -25,7 +25,7 @@ exports.findOne = async (req, res) => {
       res.status(500).send({
         message:
           err.message ||
-          `Some error ocurred while retrieving Professional Summary with id:${id}`,
+          `Some error ocurred while retrieving Professional Summary with id:${req.params.id}`,
       });
     });
 };
