@@ -18,6 +18,7 @@ import Semester from "./semester.model.js";
 import Strength from "./strength.model.js";
 import Student from "./student.model.js";
 import Task from "./task.model.js";
+import TaskMajor from "./taskMajor.model.js";
 import User from "./user.model.js";
 import Session from "./session.model.js";
 import StudentReward from "./studentReward.model.js";
@@ -45,6 +46,7 @@ db.semester = Semester;
 db.strength = Strength;
 db.student = Student;
 db.task = Task;
+db.taskMajor = TaskMajor;
 db.user = User;
 db.session = Session;
 db.studentReward = StudentReward;
@@ -250,5 +252,18 @@ db.flightPlanItem.hasMany(db.submission, {
 // notificaiton to user
 Notification.belongsTo(User, { foreignKey: "sentBy" });
 User.hasMany(Notification, { foreignKey: "sentBy" });
+
+// TaskMajor associations
+Task.belongsToMany(db.major, {
+  through: db.taskMajor,
+  foreignKey: "taskId",
+  otherKey: "majorId",
+});
+
+Major.belongsToMany(db.task, {
+  through: db.taskMajor,
+  foreignKey: "majorId",
+  otherKey: "taskId",
+});
 
 export default db;
