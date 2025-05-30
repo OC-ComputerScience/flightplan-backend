@@ -7,6 +7,7 @@ import Event from "./event.model.js";
 import EventCheckinTokens from "./eventCheckinTokens.js";
 import EventType from "./eventType.model.js";
 import Experience from "./experience.model.js";
+import ExperienceStrength from "./experienceStrength.model.js";
 import FlightPlan from "./flightPlan.model.js";
 import FlightPlanItem from "./flightPlanItem.model.js";
 import Link from "./link.model.js";
@@ -34,6 +35,7 @@ db.event = Event;
 db.eventCheckinTokens = EventCheckinTokens;
 db.eventType = EventType;
 db.experience = Experience;
+db.experienceStrength = ExperienceStrength;
 db.flightPlan = FlightPlan;
 db.flightPlanItem = FlightPlanItem;
 db.link = Link;
@@ -120,8 +122,8 @@ Experience.belongsToMany(Major, { through: "experienceMajor" });
 Major.belongsToMany(Experience, { through: "experienceMajor" });
 
 // ExperienceStrength
-Experience.belongsToMany(Strength, { through: "experienceStrength" });
-Strength.belongsToMany(Experience, { through: "experienceStrength" });
+Experience.belongsToMany(Strength, { through: ExperienceStrength, foreignKey: "experienceId" });
+Strength.belongsToMany(Experience, { through: ExperienceStrength, foreignKey: "strengthId" });
 
 // EXPOPTIONS
 Experience.belongsToMany(Event, { through: "expOption", as: "events" });

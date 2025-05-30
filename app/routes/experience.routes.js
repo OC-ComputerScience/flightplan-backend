@@ -47,4 +47,7 @@ router.get(
   experience.getSubmissionTypes,
 );
 
+router.put("/:id/strengths", [authenticate], experience.addStrength);
+router.delete("/:id/strengths", [authenticate], experience.removeStrength);
+
 export default router;
