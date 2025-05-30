@@ -118,6 +118,28 @@ exports.getSubmissionTypes = () => {
   return Experience.getAttributes().submissionType.values;
 };
 
+exports.addStrength = async (experienceId, strengthId) => {
+  const experience = await Experience.findByPk(experienceId);
+  if (!experience) {
+    throw new Error("Experience not found");
+  }
+  return await experience.addStrength(strengthId);
+};
+
+exports.removeStrength = async (experienceId, strengthId) => {
+  const experience = await Experience.findByPk(experienceId);
+  if (!experience) {
+    throw new Error("Experience not found");
+  }
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await experience.removeStrength(strengthId);
+  if (result === 1) {
+    return { success: true, message: "Strength removed successfully." };
+  } else {
+    return { success: false, message: "Strength not found or already removed." };
+  }
+};
+
 export default exports;
 
 export const getAllExperiences = async () => {
