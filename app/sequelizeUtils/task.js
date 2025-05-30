@@ -147,6 +147,22 @@ exports.deleteTask = async (taskId) => {
   return await Task.destroy({ where: { id: taskId } });
 };
 
+exports.addMajor = async (taskId, majorId) => {
+  const task = await Task.findByPk(taskId);
+  if (!task) {
+    throw new Error("Task not found");
+  }
+  return await task.addMajor(majorId);
+};
+
+exports.removeMajor = async (taskId, majorId) => {
+  const task = await Task.findByPk(taskId);
+  if (!task) {
+    throw new Error("Task not found");
+  }
+  return await task.removeMajor(majorId);
+}
+
 exports.getCategories = () => {
   return Task.getAttributes().category.values;
 };
