@@ -124,4 +124,32 @@ exports.getSubmissionTypes = (req, res) => {
   res.send(Experience.getSubmissionTypes());
 };
 
+exports.addStrength = async (req, res) => {
+  await Experience.addStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding strength to experience.",
+      });
+    });
+};
+
+exports.removeStrength = async (req, res) => {
+  await Experience.removeStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing strength from experience.",
+      });
+    });
+};
+
 export default exports;
