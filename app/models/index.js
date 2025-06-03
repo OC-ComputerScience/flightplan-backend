@@ -120,12 +120,12 @@ Task.belongsToMany(Strength, { through: "taskStrength" });
 Strength.belongsToMany(Task, { through: "taskStrength" });
 
 // EXPERIENCEMAJORS
-Experience.belongsToMany(Major, { through: ExperienceMajor, foreignKey: "experienceId" });
-Major.belongsToMany(Experience, { through: ExperienceMajor, foreignKey: "majorId" });
+Experience.belongsToMany(Major, { through: ExperienceMajor, foreignKey: "experienceId", onDelete: "CASCADE", });
+Major.belongsToMany(Experience, { through: ExperienceMajor, foreignKey: "majorId", onDelete: "CASCADE", });
 
 // ExperienceStrength
-Experience.belongsToMany(Strength, { through: ExperienceStrength, foreignKey: "experienceId" });
-Strength.belongsToMany(Experience, { through: ExperienceStrength, foreignKey: "strengthId" });
+Experience.belongsToMany(Strength, { through: ExperienceStrength, foreignKey: "experienceId", onDelete: "CASCADE", });
+Strength.belongsToMany(Experience, { through: ExperienceStrength, foreignKey: "strengthId", onDelete: "CASCADE", });
 
 // EXPOPTIONS
 Experience.belongsToMany(Event, { through: "expOption", as: "events" });
