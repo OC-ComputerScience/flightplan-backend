@@ -1,4 +1,5 @@
 import db from "../models/index.js";
+import Strength from "../models/strength.model.js";
 const Major = db.major;
 const Op = db.Sequelize.Op;
 
@@ -99,6 +100,10 @@ exports.delete = async (id) => {
   }
 
   return await major.destroy();
+};
+
+exports.findAllMajorsForTask = async () => {
+  return await Strength.findAllForTask();
 };
 
 export default exports;

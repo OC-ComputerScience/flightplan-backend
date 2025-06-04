@@ -25,6 +25,7 @@ import StudentReward from "./studentReward.model.js";
 import StudentStrength from "./studentStrength.model.js";
 import Submission from "./submission.model.js";
 import EventStudents from "./eventStudents.model.js";
+import TaskMajor from "./taskMajor.model.js";
 
 const db = {};
 
@@ -53,6 +54,7 @@ db.studentReward = StudentReward;
 db.StudentStrength = StudentStrength;
 db.submission = Submission;
 db.eventStudents = EventStudents;
+db.taskMajor = TaskMajor;
 
 db.Sequelize = Sequelize;
 
@@ -110,8 +112,8 @@ Reward.belongsToMany(Student, {
 });
 
 // TASKMAJOR
-Task.belongsToMany(Major, { through: "taskMajor" });
-Major.belongsToMany(Task, { through: "taskMajor" });
+Task.belongsToMany(Major, { through: TaskMajor, foreignKey: "taskId" });
+Major.belongsToMany(Task, { through: TaskMajor, foreignKey: "majorId" });
 
 // TaskStrength
 Task.belongsToMany(Strength, { through: "taskStrength" });
