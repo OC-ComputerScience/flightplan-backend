@@ -160,7 +160,13 @@ exports.removeMajor = async (taskId, majorId) => {
   if (!task) {
     throw new Error("Task not found");
   }
-  return await task.removeMajor(majorId);
+  // Check if the major is associated with the task
+  const result = await task.removeMajor(majorId);
+  if (result === 1) {
+    return { success: true, message: "Major removed successfully." };
+  } else {
+    return {success: false, message: "Major not found or already removed."};
+  }
 }
 
 exports.getCategories = () => {
