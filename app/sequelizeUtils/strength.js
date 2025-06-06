@@ -13,6 +13,6 @@ exports.findAllStrengthsForUser = async () => {
 
 exports.findAllStrengthsForExperience = async () => {
   return await Strength.findAllForExperience();
-}
+};
 
 export default exports;

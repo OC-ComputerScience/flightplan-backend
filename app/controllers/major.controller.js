@@ -126,5 +126,4 @@ exports.getMajorsForExperience = async (req, res) => {
   }
 };
 
-
 export default exports;

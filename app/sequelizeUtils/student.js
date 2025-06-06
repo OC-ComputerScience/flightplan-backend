@@ -13,11 +13,9 @@ const Major = db.major;
 const exports = {};
 
 exports.findStudentForUserId = async (userId) => {
-  return await Student.findOne({ 
+  return await Student.findOne({
     where: { userId },
-    include: [
-      { model: Major, as: 'majors' }
-    ]
+    include: [{ model: Major, as: "majors" }],
   });
 };
 
