@@ -98,7 +98,7 @@ exports.delete = async (req, res) => {
 
 exports.getMajorsForTask = async (req, res) => {
   
-  const taskId = req.params.taskId;
+  const taskId = req.params.id;
 
   try {
     const task = await Task.findOne({
