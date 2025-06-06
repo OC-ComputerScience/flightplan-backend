@@ -19,6 +19,10 @@ const Student = SequelizeInstance.define("student", {
   semestersFromGrad: {
     type: Sequelize.INTEGER,
   },
+  schoolId: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1234567,
+  },
 });
 
 export default Student;
