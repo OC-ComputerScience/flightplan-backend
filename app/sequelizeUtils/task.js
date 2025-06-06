@@ -1,6 +1,7 @@
 import db from "../models/index.js";
 import { Op } from "sequelize";
 const Task = db.task;
+const TaskMajor = db.taskMajor;
 const FlightPlanItem = db.flightPlanItem;
 const FlightPlan = db.flightPlan;
 const exports = {};
@@ -148,20 +149,22 @@ exports.deleteTask = async (taskId) => {
 };
 
 exports.addMajor = async (taskId, majorId) => {
-  const task = await Task.findByPk(taskId);
-  if (!task) {
-    throw new Error("Task not found");
+  let taskMajor = {
+    taskId: taskId,
+    majorId: majorId,
   }
-  return await task.addMajor(majorId);
+  
+  return await TaskMajor.create(taskMajor);
 };
 
 exports.removeMajor = async (taskId, majorId) => {
-  const task = await Task.findByPk(taskId);
-  if (!task) {
-    throw new Error("Task not found");
-  }
-  // Check if the major is associated with the task
-  const result = await task.removeMajor(majorId);
+  console.log("Removing major:", majorId, "from task:", taskId);
+  const result = await TaskMajor.destroy({
+    where: {
+      taskId: taskId,
+      majorId: majorId,
+    },
+  });
   if (result === 1) {
     return { success: true, message: "Major removed successfully." };
   } else {

@@ -136,7 +136,7 @@ exports.getSubmissionTypes = (req, res) => {
 };
 
 exports.addMajor = async (req, res) => {
-  await Task.addMajor(req.params.id, req.body.majorId)
+  await Task.addMajor(req.params.id, req.params.majorId)
     .then((data) => {
       res.send(data);
     })
@@ -148,7 +148,7 @@ exports.addMajor = async (req, res) => {
 };
 
 exports.removeMajor = async (req, res) => {
-  await Task.removeMajor(req.params.id, req.body.majorId)
+  await Task.removeMajor(req.params.id, req.params.majorId)
     .then((data) => {
       res.send(data);
     })
