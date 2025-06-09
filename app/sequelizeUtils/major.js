@@ -103,7 +103,7 @@ exports.delete = async (id) => {
 };
 
 exports.findAllMajorsForTask = async () => {
-  return await Strength.findAllForTask();
+  return await Major.findAllForTask();
 };
 
 export default exports;
