@@ -1,5 +1,8 @@
+import db from "../models/index.js";
 import majorUtils from "../sequelizeUtils/major.js";
 import db from "../models/index.js";
+const Major = db.major;
+const Experience = db.experience;
 
 const exports = {};
 const Major = db.major;
@@ -129,6 +132,36 @@ exports.getAllMajors = async (req, res) => {
     return res.status(200).json(majors);
   } catch (err) {
     console.error("Error fetching all majors:", err);
+    res
+      .status(500)
+      .json({ message: "Error fetching majors", error: err.message });
+  }
+};
+
+exports.getMajorsForExperience = async (req, res) => {
+  const experienceId = req.params.id;
+
+  console.log("Received request for experience ID:", experienceId); // Log the incoming request
+
+  try {
+    // Try fetching the experience and include majors in the response
+    const experience = await Experience.findOne({
+      where: { id: experienceId }, // Find the experience by ID
+      include: {
+        model: Major, // Include the related Major model
+        through: { attributes: [] }, // Exclude join table attributes (only majors)
+      },
+    });
+
+    if (!experience) {
+      return res.status(404).json({ message: "Experience not found" });
+    }
+
+    console.log(experience.majors);
+
+    return res.status(200).json(experience.majors);
+  } catch (err) {
+    console.error("Error fetching majors for experience:", experienceId, err); // Log the error
     res
       .status(500)
       .json({ message: "Error fetching majors", error: err.message });

@@ -140,6 +140,28 @@ exports.removeStrength = async (experienceId, strengthId) => {
   }
 };
 
+exports.addMajor = async (experienceId, majorId) => {
+  const experience = await Experience.findByPk(experienceId);
+  if (!experience) {
+    throw new Error("Experience not found");
+  }
+  return await experience.addMajor(majorId);
+};
+
+exports.removeMajor = async (experienceId, majorId) => {
+  const experience = await Experience.findByPk(experienceId);
+  if (!experience) {
+    throw new Error("Experience not found");
+  }
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await experience.removeMajor(majorId);
+  if (result === 1) {
+    return { success: true, message: "Major removed successfully." };
+  } else {
+    return { success: false, message: "Major not found or already removed." };
+  }
+};
+
 export default exports;
 
 export const getAllExperiences = async () => {
