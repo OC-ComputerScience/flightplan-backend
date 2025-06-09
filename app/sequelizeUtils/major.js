@@ -1,5 +1,4 @@
 import db from "../models/index.js";
-import Strength from "../models/strength.model.js";
 const Major = db.major;
 const Op = db.Sequelize.Op;
 
