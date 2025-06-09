@@ -1,12 +1,10 @@
 import db from "../models/index.js";
 import majorUtils from "../sequelizeUtils/major.js";
-import db from "../models/index.js";
 const Major = db.major;
 const Experience = db.experience;
+const Task = db.task;
 
 const exports = {};
-const Major = db.major;
-const Task = db.task;
 
 exports.create = async (req, res) => {
   await majorUtils
