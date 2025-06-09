@@ -181,7 +181,13 @@ exports.removeMajor = async (studentId, majorId) => {
   if (!student) {
     throw new Error("Student not found");
   }
-  return await student.removeMajor(majorId);
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await student.removeMajor(majorId);
+  if (result === 1) {
+    return { success: true, message: "Major removed successfully." };
+  } else {
+    return { success: false, message: "Major not found or already removed." };
+  }
 };
 
 exports.addStrength = async (studentId, strengthId) => {
@@ -197,7 +203,13 @@ exports.removeStrength = async (studentId, strengthId) => {
   if (!student) {
     throw new Error("Student not found");
   }
-  return await student.removeStrength(strengthId);
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await student.removeStrength(strengthId);
+  if (result === 1) {
+    return { success: true, message: "Strength removed successfully." };
+  } else {
+    return { success: false, message: "Strength not found or already removed." };
+  }
 };
 
 export default exports;
