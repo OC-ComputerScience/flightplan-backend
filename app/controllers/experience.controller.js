@@ -152,4 +152,33 @@ exports.removeStrength = async (req, res) => {
     });
 };
 
+
+exports.addMajor = async (req, res) => {
+  await Experience.addMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding major to experience.",
+      });
+    });
+};
+
+exports.removeMajor = async (req, res) => {
+  await Experience.removeMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing major from experience.",
+      });
+    });
+};
+
 export default exports;
