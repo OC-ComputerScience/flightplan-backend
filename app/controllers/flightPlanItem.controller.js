@@ -1,5 +1,4 @@
 import FlightPlanItem from "../sequelizeUtils/flightPlanItem.js";
-// import MobileNotification from "../utilities/mobileNotifications.helpers.js";
 
 const validateFlightPlanItem = (flightPlanItem) => {
   const hasTask =
