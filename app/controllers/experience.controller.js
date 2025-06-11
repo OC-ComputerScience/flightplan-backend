@@ -152,7 +152,6 @@ exports.removeStrength = async (req, res) => {
     });
 };
 
-
 exports.addMajor = async (req, res) => {
   await Experience.addMajor(req.params.id, req.body.majorId)
     .then((data) => {

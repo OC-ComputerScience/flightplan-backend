@@ -103,6 +103,6 @@ exports.delete = async (id) => {
 
 exports.findAllMajorsForExperience = async () => {
   return await Major.findAllForExperience();
-}
+};
 
 export default exports;

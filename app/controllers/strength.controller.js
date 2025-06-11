@@ -58,7 +58,11 @@ exports.getStrengthsForExperience = async (req, res) => {
 
     return res.status(200).json(experience.strengths);
   } catch (err) {
-    console.error("Error fetching strengths for experience:", experienceId, err); // Log the error
+    console.error(
+      "Error fetching strengths for experience:",
+      experienceId,
+      err,
+    ); // Log the error
     res
       .status(500)
       .json({ message: "Error fetching strengths", error: err.message });

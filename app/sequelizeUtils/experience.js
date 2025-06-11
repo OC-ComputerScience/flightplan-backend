@@ -136,7 +136,10 @@ exports.removeStrength = async (experienceId, strengthId) => {
   if (result === 1) {
     return { success: true, message: "Strength removed successfully." };
   } else {
-    return { success: false, message: "Strength not found or already removed." };
+    return {
+      success: false,
+      message: "Strength not found or already removed.",
+    };
   }
 };
 
