@@ -19,6 +19,29 @@ import SubmissionRoutes from "./submission.routes.js";
 import FileRoutes from "./file.routes.js";
 import MajorRoutes from "./major.routes.js";
 import SemesterRoutes from "./semester.routes.js";
+
+// Resume Items
+import AwardItemRoutes from "./awardItem.routes.js";
+import EducationItemRoutes from "./educationItem.routes.js";
+import WorkExperienceItemRoutes from "./workExperienceItem.routes.js";
+import LinkItemRoutes from "./linkItem.routes.js";
+import ProfessionalSummaryItemRoutes from "./professionalSummaryItem.routes.js";
+import ProjectItemRoutes from "./projectItem.routes.js";
+import SkillItemRoutes from "./skillItem.routes.js";
+
+// Resume
+
+import AwardRoutes from "./award.routes.js";
+import CommentRoutes from "./comment.routes.js";
+import EducationRoutes from "./education.routes.js";
+import ProfessionalSummaryRoutes from "./professionalSummary.routes.js";
+import ProjectRoutes from "./project.routes.js";
+import ResumeRoutes from "./resume.routes.js";
+import ResumeSectionRoutes from "./resumeSection.routes.js";
+import SkillRoutes from "./skill.routes.js";
+import TemplateRoutes from "./template.routes.js";
+import WorkExperienceRoutes from "./workExperience.routes.js";
+
 const router = Router();
 
 router.use("/", AuthRoutes);
@@ -41,6 +64,28 @@ router.use("/submission", SubmissionRoutes);
 router.use("/file", FileRoutes);
 router.use("/majors", MajorRoutes);
 router.use("/semesters", SemesterRoutes);
+
+// Resume Items
+router.use("/awardItems", AwardItemRoutes);
+router.use("/educationItems", EducationItemRoutes);
+router.use("/workExperienceItems", WorkExperienceItemRoutes);
+router.use("/linkItems", LinkItemRoutes);
+router.use("/professionalSummaryItems", ProfessionalSummaryItemRoutes);
+router.use("/projectItems", ProjectItemRoutes);
+router.use("/skillItems", SkillItemRoutes);
+
+// Resume
+router.use("/awards", AwardRoutes);
+router.use("/comments", CommentRoutes);
+router.use("/educations", EducationRoutes);
+router.use("/professionalSummaries", ProfessionalSummaryRoutes);
+router.use("/projects", ProjectRoutes);
+router.use("/resumes", ResumeRoutes);
+router.use("/resumeSections", ResumeSectionRoutes);
+router.use("/skills", SkillRoutes);
+router.use("/templates", TemplateRoutes);
+router.use("/workExperiences", WorkExperienceRoutes);
+
 // eslint-disable-next-line
 router.get("/", (req, res) => {
   res.json({ message: "Welcome to Team 1's Eagle Flight Plan API." });

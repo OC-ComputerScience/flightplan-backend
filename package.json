@@ -10,6 +10,7 @@
     "dev": "nodemon server.js",
     "start-alter": "node server.js alter",
     "bundle": "mkdir deploy && cp -r app server.js package.json package-lock.json flight-plan-t1-backend.service .env deploy",
+    "winbundle": "md deploy && xcopy app deploy\\app /s /h /i /y /e && copy server.js deploy && copy *.json deploy && copy flightplan-backend.service deploy && copy .env deploy",
     "lint": "eslint --ext .js app",
     "format": "prettier . --write"
   },
