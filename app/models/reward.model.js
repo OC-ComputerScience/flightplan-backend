@@ -17,8 +17,8 @@ const Reward = SequelizeInstance.define("reward", {
     type: Sequelize.INTEGER,
   },
   redemptionType: {
-    type: Sequelize.ENUM("In-Person", "Online"),
-    defaultValue: "Online",
+    type: Sequelize.ENUM("In-Person", "Digital"),
+    defaultValue: "Digital",
   },
   redemptionInfo: {
     type: Sequelize.STRING(255),
