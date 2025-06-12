@@ -2,6 +2,7 @@ import db from "../models/index.js";
 import majorUtils from "../sequelizeUtils/major.js";
 const Major = db.major;
 const Experience = db.experience;
+const Task = db.task;
 const Student = db.student;
 
 const exports = {};
@@ -95,6 +96,45 @@ exports.delete = async (req, res) => {
       });
       console.log("Could not delete major: " + err);
     });
+};
+
+exports.getMajorsForTask = async (req, res) => {
+  
+  const taskId = req.params.id;
+
+  try {
+    const task = await Task.findOne({
+      where: { id: taskId },
+      include: {
+        model: Major, // Include the related Major model
+        through: { attributes: [] }, // Exclude join table attributes (only strengths)
+      },
+    });
+
+    if (!task) {
+      return res.status(404).send({message: `Task with id = ${taskId} not found.`});
+    }
+    
+    return res.status(200).json(task.majors);
+  
+  } catch (err) {
+    console.error("Error fetching majors for task:", taskId, err); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error fetching majors", error: err.message });
+  }
+};
+
+exports.getAllMajors = async (req, res) => {
+  try {
+    const majors = await Major.findAll();
+    return res.status(200).json(majors);
+  } catch (err) {
+    console.error("Error fetching all majors:", err);
+    res
+      .status(500)
+      .json({ message: "Error fetching majors", error: err.message });
+  }
 };
 
 exports.getMajorsForStudent = async (req, res) => {
