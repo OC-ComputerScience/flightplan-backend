@@ -34,6 +34,11 @@ jobs:
           echo DB_NAME=${{env.DB_NAME}} >> .env
           echo CLIENT_ID=${{env.CLIENT_ID}} >> .env
           echo CLIENT_SECRET=${{env.CLIENT_SECRET}} >> .env
+          echo FIREBASE_PROJECT_ID=${{secrets.FIREBASE_PROJECT_ID}} >> .env
+          echo FIREBASE_PRIVATE_KEY_ID=${{secrets.FIREBASE_PRIVATE_KEY_ID}} >> .env
+          echo FIREBASE_PRIVATE_KEY=${{secrets.FIREBASE_PRIVATE_KEY}} >> .env
+          echo FIREBASE_CLIENT_EMAIL=${{secrets.FIREBASE_CLIENT_EMAIL}} >> .env
+          echo FIREBASE_CLIENT_ID=${{secrets.FIREBASE_CLIENT_ID}} >> .env
 
       - run: npm run winbundle
 
