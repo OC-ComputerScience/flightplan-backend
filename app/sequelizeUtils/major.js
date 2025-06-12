@@ -107,6 +107,10 @@ exports.findAllMajorsForTask = async () => {
 
 exports.findAllMajorsForExperience = async () => {
   return await Major.findAllForExperience();
+};
+
+exports.findAllMajorsForStudent = async () => {
+  return await Major.findAllForStudent();
 }
 
 export default exports;
