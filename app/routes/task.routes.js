@@ -34,4 +34,7 @@ router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
 router.post("/:id/majors/:majorId", [authenticate, isAdmin], task.addMajor);
 router.delete("/:id/majors/:majorId", [authenticate, isAdmin], task.removeMajor);
 
+router.post("/:id/strengths/:strengthId", [authenticate, isAdmin], task.addStrength);
+router.delete("/:id/strengths/:strengthId", [authenticate, isAdmin], task.removeStrength);
+
 export default router;

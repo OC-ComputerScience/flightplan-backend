@@ -15,4 +15,8 @@ exports.findAllStrengthsForExperience = async () => {
   return await Strength.findAllForExperience();
 };
 
+exports.findAllStrengthsForTask = async () => {
+  return await Strength.findAllForTask();
+};
+
 export default exports;
