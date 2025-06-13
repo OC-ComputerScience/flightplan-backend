@@ -159,4 +159,28 @@ exports.removeMajor = async (req, res) => {
     });
 };
 
+exports.addStrength = async (req, res) => {
+  await Task.addStrength(req.params.id, req.params.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while adding strength to task.",
+      });
+    });
+};
+
+exports.removeStrength = async (req, res) => {
+  await Task.removeStrength(req.params.id, req.params.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while removing strength from task.",
+      });
+    });
+};
+
 export default exports;

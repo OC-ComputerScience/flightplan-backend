@@ -21,6 +21,15 @@ router.get(
   strengths.getStrengthsForExperience,
 );
 
+router.get(
+  "/task/:id",
+  (req, res, next) => {
+    console.log("Strength route hit for task ID:", req.params.id);
+    next(); // Make sure to pass control to the next middleware
+  },
+  strengths.getStrengthsForTask,
+);
+
 router.get("/", strengths.getAllStrengths);
 
 export default router;
