@@ -29,6 +29,7 @@ import StudentMajor from "./studentMajor.model.js";
 import Submission from "./submission.model.js";
 import EventStudents from "./eventStudents.model.js";
 import TaskMajor from "./taskMajor.model.js";
+import TaskStrength from "./taskStrength.model.js";
 
 // Resume Item Models
 import AwardItem from "./resumeItems/awardItem.model.js";
@@ -82,6 +83,7 @@ db.StudentMajor = StudentMajor;
 db.submission = Submission;
 db.eventStudents = EventStudents;
 db.taskMajor = TaskMajor;
+db.taskStrength = TaskStrength;
 
 // Resume Item Models
 db.awardItem = AwardItem;
@@ -250,9 +252,9 @@ Reward.belongsToMany(Student, {
 Task.belongsToMany(Major, { through: TaskMajor, foreignKey: "taskId" });
 Major.belongsToMany(Task, { through: TaskMajor, foreignKey: "majorId" });
 
-// TaskStrength
-Task.belongsToMany(Strength, { through: "taskStrength" });
-Strength.belongsToMany(Task, { through: "taskStrength" });
+// TASKSTRENGTH
+Task.belongsToMany(Strength, { through: TaskStrength, foreignKey: "taskId" });
+Strength.belongsToMany(Task, { through: TaskStrength, foreignKey: "strengthId" });
 
 // EXPERIENCEMAJORS
 Experience.belongsToMany(Major, {
