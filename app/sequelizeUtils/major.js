@@ -101,8 +101,16 @@ exports.delete = async (id) => {
   return await major.destroy();
 };
 
+exports.findAllMajorsForTask = async () => {
+  return await Major.findAllForTask();
+};
+
 exports.findAllMajorsForExperience = async () => {
   return await Major.findAllForExperience();
 };
+
+exports.findAllMajorsForStudent = async () => {
+  return await Major.findAllForStudent();
+}
 
 export default exports;

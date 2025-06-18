@@ -135,4 +135,52 @@ exports.getSubmissionTypes = (req, res) => {
   res.send(Task.getSubmissionTypes());
 };
 
+exports.addMajor = async (req, res) => {
+  await Task.addMajor(req.params.id, req.params.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while adding major to task.",
+      });
+    });
+};
+
+exports.removeMajor = async (req, res) => {
+  await Task.removeMajor(req.params.id, req.params.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while removing major from task.",
+      });
+    });
+};
+
+exports.addStrength = async (req, res) => {
+  await Task.addStrength(req.params.id, req.params.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while adding strength to task.",
+      });
+    });
+};
+
+exports.removeStrength = async (req, res) => {
+  await Task.removeStrength(req.params.id, req.params.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while removing strength from task.",
+      });
+    });
+};
+
 export default exports;

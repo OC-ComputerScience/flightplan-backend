@@ -1,6 +1,8 @@
 import db from "../models/index.js";
 import { Op } from "sequelize";
 const Task = db.task;
+const TaskMajor = db.taskMajor;
+const TaskStrength = db.taskStrength;
 const FlightPlanItem = db.flightPlanItem;
 const FlightPlan = db.flightPlan;
 const exports = {};
@@ -146,6 +148,54 @@ exports.updateTask = async (taskData, taskId) => {
 exports.deleteTask = async (taskId) => {
   return await Task.destroy({ where: { id: taskId } });
 };
+
+exports.addMajor = async (taskId, majorId) => {
+  let taskMajor = {
+    taskId: taskId,
+    majorId: majorId,
+  }
+  
+  return await TaskMajor.create(taskMajor);
+};
+
+exports.removeMajor = async (taskId, majorId) => {
+  console.log("Removing major:", majorId, "from task:", taskId);
+  const result = await TaskMajor.destroy({
+    where: {
+      taskId: taskId,
+      majorId: majorId,
+    },
+  });
+  if (result === 1) {
+    return { success: true, message: "Major removed successfully." };
+  } else {
+    return {success: false, message: "Major not found or already removed."};
+  }
+}
+
+exports.addStrength = async (taskId, strengthId) => {
+  let taskStrength = {
+    taskId: taskId,
+    strengthId: strengthId,
+  }
+
+  return await TaskStrength.create(taskStrength);
+};
+
+exports.removeStrength = async (taskId, strengthId) => {
+  console.log("Removing strength:", strengthId, "from task:", taskId);
+  const result = await TaskStrength.destroy({
+    where: {
+      taskId: taskId,
+      strengthId: strengthId,
+    },
+  });
+  if (result === 1) {
+    return { success: true, message: "Strength removed successfully." };
+  } else {
+    return {success: false, message: "Strength not found or already removed."};
+  }
+}
 
 exports.getCategories = () => {
   return Task.getAttributes().category.values;

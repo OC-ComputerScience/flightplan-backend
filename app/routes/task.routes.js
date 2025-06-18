@@ -4,13 +4,13 @@ import { Router } from "express";
 
 const router = Router();
 
-// Create a new Role
+// Create a new Task
 router.post("/", [authenticate, isAdmin], task.create);
 
-// Retrieve a single Role with id
+// Retrieve a single Task with id
 router.get("/:id", [authenticate], task.findOne);
 
-// Retrieve all Role
+// Retrieve all Tasks
 router.get("/", [authenticate], task.findAll);
 
 router.get(
@@ -19,10 +19,10 @@ router.get(
   task.findAllOptionalForStudentId,
 );
 
-// Update a Role with id
+// Update a Task with id
 router.put("/:id", [authenticate, isAdmin], task.update);
 
-// Delete a Role with id
+// Delete a Task with id
 router.delete("/:id", [authenticate, isAdmin], task.delete);
 
 router.get("/types/categories", [authenticate], task.getCategories);
@@ -30,5 +30,11 @@ router.get("/types/categories", [authenticate], task.getCategories);
 router.get("/types/schedulingTypes", [authenticate], task.getSchedulingTypes);
 
 router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
+
+router.post("/:id/majors/:majorId", [authenticate, isAdmin], task.addMajor);
+router.delete("/:id/majors/:majorId", [authenticate, isAdmin], task.removeMajor);
+
+router.post("/:id/strengths/:strengthId", [authenticate, isAdmin], task.addStrength);
+router.delete("/:id/strengths/:strengthId", [authenticate, isAdmin], task.removeStrength);
 
 export default router;

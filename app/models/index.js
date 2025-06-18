@@ -25,8 +25,11 @@ import User from "./user.model.js";
 import Session from "./session.model.js";
 import StudentReward from "./studentReward.model.js";
 import StudentStrength from "./studentStrength.model.js";
+import StudentMajor from "./studentMajor.model.js";
 import Submission from "./submission.model.js";
 import EventStudents from "./eventStudents.model.js";
+import TaskMajor from "./taskMajor.model.js";
+import TaskStrength from "./taskStrength.model.js";
 
 // Resume Item Models
 import AwardItem from "./resumeItems/awardItem.model.js";
@@ -76,8 +79,11 @@ db.user = User;
 db.session = Session;
 db.studentReward = StudentReward;
 db.StudentStrength = StudentStrength;
+db.StudentMajor = StudentMajor;
 db.submission = Submission;
 db.eventStudents = EventStudents;
+db.taskMajor = TaskMajor;
+db.taskStrength = TaskStrength;
 
 // Resume Item Models
 db.awardItem = AwardItem;
@@ -232,8 +238,8 @@ Student.hasMany(BadgeAwarded, { foreignKey: "studentId", as: "badgeAwarded" });
 BadgeAwarded.belongsTo(Student, { foreignKey: "studentId", as: "student" });
 
 // STUDENTMAJOR
-Student.belongsToMany(Major, { through: "studentMajor" });
-Major.belongsToMany(Student, { through: "studentMajor" });
+Student.belongsToMany(Major, { through: StudentMajor, foreignKey: "studentId", onDelete: "CASCADE",  });
+Major.belongsToMany(Student, { through: StudentMajor, foreignKey: "majorId", onDelete: "CASCADE",  });
 
 Student.belongsToMany(Reward, {
   through: { model: StudentReward, unique: false },
@@ -243,12 +249,12 @@ Reward.belongsToMany(Student, {
 });
 
 // TASKMAJOR
-Task.belongsToMany(Major, { through: "taskMajor" });
-Major.belongsToMany(Task, { through: "taskMajor" });
+Task.belongsToMany(Major, { through: TaskMajor, foreignKey: "taskId" });
+Major.belongsToMany(Task, { through: TaskMajor, foreignKey: "majorId" });
 
-// TaskStrength
-Task.belongsToMany(Strength, { through: "taskStrength" });
-Strength.belongsToMany(Task, { through: "taskStrength" });
+// TASKSTRENGTH
+Task.belongsToMany(Strength, { through: TaskStrength, foreignKey: "taskId" });
+Strength.belongsToMany(Task, { through: TaskStrength, foreignKey: "strengthId" });
 
 // EXPERIENCEMAJORS
 Experience.belongsToMany(Major, {

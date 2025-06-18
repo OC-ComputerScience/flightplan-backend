@@ -8,12 +8,29 @@ const router = Router();
 router.get("/", majorController.findAll);
 router.get("/:id", majorController.findOne);
 router.get(
+    "/task/:id", 
+    (req, res, next) => {
+        console.log("Major route hit for task ID:", req.params.id);
+        next(); // Make sure to pass control to the next middleware
+    },
+    majorController.getMajorsForTask,
+);
+router.get("/", majorController.getAllMajors);
+router.get(
   "/experience/:id",
   (req, res, next) => {
     console.log("Major route hit for experience ID:", req.params.id);
     next(); // Make sure to pass control to the next middleware
   },
   majorController.getMajorsForExperience,
+);
+router.get(
+  "/student/:id",
+  (req, res, next) => {
+    console.log("Major route hit for student ID:", req.params.id);
+    next(); // Make sure to pass control to the next middleware
+  },
+  majorController.getMajorsForStudent,
 );
 
 // Admin routes
