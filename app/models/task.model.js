@@ -26,6 +26,14 @@ const Task = SequelizeInstance.define("task", {
       "every-other-semester",
     ),
   },
+  status: {
+    type: Sequelize.ENUM(
+      "active", 
+      "inactive", 
+      "archived"
+    ),
+    defaultValue: "active",
+  },
   name: {
     type: Sequelize.STRING,
   },

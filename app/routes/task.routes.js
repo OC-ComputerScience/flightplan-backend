@@ -19,11 +19,14 @@ router.get(
   task.findAllOptionalForStudentId,
 );
 
+router.get(
+  "/active",
+  [authenticate],
+  task.findAllActive,
+);
+
 // Update a Task with id
 router.put("/:id", [authenticate, isAdmin], task.update);
-
-// Delete a Task with id
-router.delete("/:id", [authenticate, isAdmin], task.delete);
 
 router.get("/types/categories", [authenticate], task.getCategories);
 
@@ -31,9 +34,11 @@ router.get("/types/schedulingTypes", [authenticate], task.getSchedulingTypes);
 
 router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
 
+// TaskMajor
 router.post("/:id/majors/:majorId", [authenticate, isAdmin], task.addMajor);
 router.delete("/:id/majors/:majorId", [authenticate, isAdmin], task.removeMajor);
 
+// TaskStrength
 router.post("/:id/strengths/:strengthId", [authenticate, isAdmin], task.addStrength);
 router.delete("/:id/strengths/:strengthId", [authenticate, isAdmin], task.removeStrength);
 

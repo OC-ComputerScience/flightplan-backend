@@ -112,6 +112,14 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery) => {
     ],
   });
 
+exports.findAllActiveTasks = async () => {
+  return await Task.findAll({
+    where: {
+      status: "active",
+    },
+  });
+};
+
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );
@@ -143,10 +151,6 @@ exports.updateTask = async (taskData, taskId) => {
   return await Task.update(taskData, {
     where: { id: taskId },
   });
-};
-
-exports.deleteTask = async (taskId) => {
-  return await Task.destroy({ where: { id: taskId } });
 };
 
 exports.addMajor = async (taskId, majorId) => {
