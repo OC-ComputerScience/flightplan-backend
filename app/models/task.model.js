@@ -39,8 +39,8 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.INTEGER,
   },
   submissionType: {
-    type: Sequelize.ENUM("text", "files", "both"),
-    defaultValue: "text",
+    type: Sequelize.ENUM("text", "files", "both", "manual"),
+    defaultValue: "manual",
   },
   points: {
     type: Sequelize.INTEGER,
