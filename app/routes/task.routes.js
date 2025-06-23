@@ -34,6 +34,8 @@ router.get("/types/schedulingTypes", [authenticate], task.getSchedulingTypes);
 
 router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
 
+router.get("/types/statusTypes", [authenticate], task.getStatusTypes);
+
 // TaskMajor
 router.post("/:id/majors/:majorId", [authenticate, isAdmin], task.addMajor);
 router.delete("/:id/majors/:majorId", [authenticate, isAdmin], task.removeMajor);
