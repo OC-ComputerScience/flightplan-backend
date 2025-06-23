@@ -126,6 +126,10 @@ exports.getSubmissionTypes = (req, res) => {
   res.send(Task.getSubmissionTypes());
 };
 
+exports.getStatusTypes = (req, res) => {
+  res.send(Task.getStatusTypes());
+};
+
 exports.addMajor = async (req, res) => {
   await Task.addMajor(req.params.id, req.params.majorId)
     .then((data) => {
