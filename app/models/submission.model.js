@@ -8,7 +8,7 @@ const Submission = SequelizeInstance.define("submission", {
     primaryKey: true,
   },
   submissionType: {
-    type: Sequelize.ENUM("text", "file"),
+    type: Sequelize.ENUM("text", "file", "manual"),
   },
   value: {
     type: Sequelize.TEXT("long"),
