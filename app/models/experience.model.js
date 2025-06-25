@@ -37,7 +37,7 @@ const Experience = SequelizeInstance.define("experience", {
     type: Sequelize.INTEGER,
   },
   description: {
-    type: Sequelize.STRING(255),
+    type: Sequelize.STRING(2000),
   },
   name: {
     type: Sequelize.STRING(255),
