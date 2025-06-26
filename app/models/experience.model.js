@@ -19,7 +19,7 @@ const Experience = SequelizeInstance.define("experience", {
     ),
   },
   submissionType: {
-    type: Sequelize.ENUM("text", "files", "both", "attendance"),
+    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Attendance - Reflection", "Attendance - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Appointed", "text", "files", "both", "attendance"),
     default: "attendance",
   },
   reflectionRequired: {
