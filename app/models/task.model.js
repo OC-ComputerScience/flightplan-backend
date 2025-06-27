@@ -30,7 +30,7 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.STRING,
   },
   description: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(2000),
   },
   rationale: {
     type: Sequelize.STRING,
@@ -39,8 +39,8 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.INTEGER,
   },
   submissionType: {
-    type: Sequelize.ENUM("text", "files", "both"),
-    defaultValue: "text",
+    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Appointed", "Auto Complete - Major", "Auto Complete - LinkedIn", "Auto Complete - Handshake", "Auto-Complete - Strengths", "text", "files", "both", "manual"),
+    defaultValue: "manual",
   },
   points: {
     type: Sequelize.INTEGER,

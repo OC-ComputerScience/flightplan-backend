@@ -337,19 +337,19 @@ db.semester.hasMany(db.flightPlan, {
   foreignKey: { name: "semesterId", allowNull: false },
 });
 
-db.student.hasOne(db.link, {
-  as: "link", // Alias for the link in the student model
+db.user.hasOne(db.link, {
+  as: "link", // Alias for the link in the user model
   foreignKey: {
-    name: "studentId", // The foreign key in the links table
+    name: "userId", // The foreign key in the links table
     allowNull: false, // The foreign key cannot be null
   },
 });
 
 // In the link model:
-db.link.belongsTo(db.student, {
-  as: "student", // Alias for the student in the link model
+db.link.belongsTo(db.user, {
+  as: "user", // Alias for the student in the link model
   foreignKey: {
-    name: "studentId", // The foreign key in the links table
+    name: "userId", // The foreign key in the links table
     allowNull: false, // The foreign key cannot be null
   },
 });

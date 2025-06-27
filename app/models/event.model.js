@@ -14,7 +14,7 @@ const Event = SequelizeInstance.define("event", {
     type: Sequelize.STRING,
   },
   description: {
-    type: Sequelize.STRING(255),
+    type: Sequelize.STRING(2000),
   },
   date: {
     type: Sequelize.DATE,
