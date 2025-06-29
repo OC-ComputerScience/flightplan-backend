@@ -112,6 +112,13 @@ exports.redeemReward = async (rewardId, studentId, userId) => {
       },
     });
 
+    if (reward.quantityAvaliable !== null && reward.quantityAvaliable > 0) {
+      await Reward.update(
+        { quantityAvaliable: reward.quantityAvaliable - 1 },
+        { where: { id: rewardId }, transaction: t }
+      );
+    }
+
     await Student.update(
       {
         pointsUsed: student.pointsUsed + reward.points,
