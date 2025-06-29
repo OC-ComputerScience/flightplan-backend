@@ -111,6 +111,10 @@ exports.findAllMajorsForExperience = async () => {
 
 exports.findAllMajorsForStudent = async () => {
   return await Major.findAllForStudent();
-}
+};
+
+exports.findAllMajorsForEvent = async () => {
+  return await Major.findAllForEvent();
+};
 
 export default exports;

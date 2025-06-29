@@ -4,6 +4,7 @@ const Major = db.major;
 const Experience = db.experience;
 const Task = db.task;
 const Student = db.student;
+const Event = db.event;
 
 const exports = {};
 
@@ -191,6 +192,36 @@ exports.getMajorsForExperience = async (req, res) => {
     return res.status(200).json(experience.majors);
   } catch (err) {
     console.error("Error fetching majors for experience:", experienceId, err); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error fetching majors", error: err.message });
+  }
+};
+
+exports.getMajorsForEvent = async (req, res) => {
+  const eventId = req.params.id;
+
+  console.log("Received request for event ID:", eventId); // Log the incoming request
+
+  try {
+    // Try fetching the event and include majors in the response
+    const event = await Event.findOne({
+      where: { id: eventId }, // Find the event by ID
+      include: {
+        model: Major, // Include the related Major model
+        through: { attributes: [] }, // Exclude join table attributes (only majors)
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    console.log(event.majors);
+
+    return res.status(200).json(event.majors);
+  } catch (err) {
+    console.error("Error fetching majors for event:", eventId, err); // Log the error
     res
       .status(500)
       .json({ message: "Error fetching majors", error: err.message });

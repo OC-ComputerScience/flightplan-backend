@@ -19,4 +19,8 @@ exports.findAllStrengthsForTask = async () => {
   return await Strength.findAllForTask();
 };
 
+exports.findAllStrengthsForEvent = async () => {
+  return await Strength.findAllForEvent();
+};
+
 export default exports;

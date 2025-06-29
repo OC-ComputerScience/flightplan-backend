@@ -765,4 +765,51 @@ exports.getEventsForExperience = async (experienceId) => {
   });
 };
 
+exports.addStrength = async (eventId, strengthId) => {
+  const event = await Event.findByPk(eventId);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+  return await event.addStrength(strengthId);
+};
+
+exports.removeStrength = async (eventId, strengthId) => {
+  const event = await Event.findByPk(eventId);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await event.removeStrength(strengthId);
+  if (result === 1) {
+    return { success: true, message: "Strength removed successfully." };
+  } else {
+    return {
+      success: false,
+      message: "Strength not found or already removed.",
+    };
+  }
+};
+
+exports.addMajor = async (eventId, majorId) => {
+  const event = await Event.findByPk(eventId);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+  return await event.addMajor(majorId);
+};
+
+exports.removeMajor = async (eventId, majorId) => {
+  const event = await Event.findByPk(eventId);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+  // Changes the return value to be more descriptive, also prevents errors for sucessful removal
+  const result = await event.removeMajor(majorId);
+  if (result === 1) {
+    return { success: true, message: "Major removed successfully." };
+  } else {
+    return { success: false, message: "Major not found or already removed." };
+  }
+};
+
 export default exports;

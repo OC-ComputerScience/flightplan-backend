@@ -32,6 +32,14 @@ router.get(
   },
   majorController.getMajorsForStudent,
 );
+router.get(
+  "/event/:id",
+  (req, res, next) => {
+    console.log("Major route hit for event ID:", req.params.id);
+    next(); // Make sure to pass control to the next middleware
+  },
+  majorController.getMajorsForEvent,
+);
 
 // Admin routes
 router.post("/", [authenticate, isAdmin], majorController.create);

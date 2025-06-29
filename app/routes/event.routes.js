@@ -112,4 +112,10 @@ router.post(
   event.importAttendance,
 );
 
+router.put("/:id/strengths", [authenticate], event.addStrength);
+router.delete("/:id/strengths", [authenticate], event.removeStrength);
+
+router.put("/:id/majors", [authenticate], event.addMajor);
+router.delete("/:id/majors", [authenticate], event.removeMajor);
+
 export default router;
