@@ -30,6 +30,15 @@ router.get(
   strengths.getStrengthsForTask,
 );
 
+router.get(
+  "/event/:id",
+  (req, res, next) => {
+    console.log("Strength route hit for event ID:", req.params.id);
+    next(); // Make sure to pass control to the next middleware
+  },
+  strengths.getStrengthsForEvent,
+);
+
 router.get("/", strengths.getAllStrengths);
 
 export default router;

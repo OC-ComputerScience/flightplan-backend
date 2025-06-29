@@ -381,4 +381,62 @@ exports.importAttendance = async (req, res) => {
   }
 };
 
+
+exports.addStrength = async (req, res) => {
+  await Event.addStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding strength to event.",
+      });
+    });
+};
+
+exports.removeStrength = async (req, res) => {
+  await Event.removeStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing strength from event.",
+      });
+    });
+};
+
+exports.addMajor = async (req, res) => {
+  await Event.addMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding major to event.",
+      });
+    });
+};
+
+exports.removeMajor = async (req, res) => {
+  await Event.removeMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing major from event.",
+      });
+    });
+};
+
+
 export default exports;
