@@ -3,6 +3,7 @@ const Student = db.student;
 const Strength = db.strength;
 const Experience = db.experience;
 const Task = db.task;
+const Event = db.event;
 
 const exports = {};
 
@@ -62,6 +63,40 @@ exports.getStrengthsForExperience = async (req, res) => {
     console.error(
       "Error fetching strengths for experience:",
       experienceId,
+      err,
+    ); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error fetching strengths", error: err.message });
+  }
+};
+
+exports.getStrengthsForEvent = async (req, res) => {
+  const eventId = req.params.id;
+
+  console.log("Received request for event ID:", eventId); // Log the incoming request
+
+  try {
+    // Try fetching the event and include strengths in the response
+    const event = await Event.findOne({
+      where: { id: eventId }, // Find the event by ID
+      include: {
+        model: Strength, // Include the related Strength model
+        through: { attributes: [] }, // Exclude join table attributes (only strengths)
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    console.log(event.strengths);
+
+    return res.status(200).json(event.strengths);
+  } catch (err) {
+    console.error(
+      "Error fetching strengths for event:",
+      eventId,
       err,
     ); // Log the error
     res
