@@ -29,8 +29,7 @@ const Task = SequelizeInstance.define("task", {
   status: {
     type: Sequelize.ENUM(
       "active", 
-      "inactive", 
-      "archived"
+      "inactive"
     ),
     defaultValue: "active",
   },
