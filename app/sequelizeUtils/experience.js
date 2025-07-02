@@ -63,6 +63,14 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery = "") => {
     ],
   });
 
+  exports.findAllActiveExperiences = async () => {
+    return await Experience.findAll({
+      where: {
+        status: "active",
+      },
+    });
+  };
+
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );
@@ -98,10 +106,6 @@ exports.updateExperience = async (experienceData, experienceId) => {
   });
 };
 
-exports.deleteExperience = async (experienceId) => {
-  return await Experience.destroy({ where: { id: experienceId } });
-};
-
 exports.getCategories = () => {
   return Experience.getAttributes().category.values;
 };
@@ -116,6 +120,10 @@ exports.getSchedulingTypes = () => {
 
 exports.getSubmissionTypes = () => {
   return Experience.getAttributes().submissionType.values;
+};
+
+exports.getStatusTypes = () => {
+  return Experience.getAttributes().status.values;
 };
 
 exports.addStrength = async (experienceId, strengthId) => {

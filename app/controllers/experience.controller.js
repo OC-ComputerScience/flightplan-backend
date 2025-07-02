@@ -66,6 +66,18 @@ exports.findAllOptionalForStudentId = async (req, res) => {
     });
 };
 
+exports.findAllActive = async (req, res) => {
+  await Experience.findAllActiveExperiences()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving experiences.",
+      });
+    });
+};
+
 exports.update = async (req, res) => {
   await Experience.updateExperience(req.body, req.params.id)
     .then((num) => {
@@ -87,27 +99,6 @@ exports.update = async (req, res) => {
     });
 };
 
-exports.delete = async (req, res) => {
-  await Experience.deleteExperience(req.params.id)
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Experience was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete experience with id = ${req.params.id}. Maybe experience was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete experience with id = " + req.params.id,
-      });
-      console.log("Could not delete experience: " + err);
-    });
-};
-
 exports.getCategories = (req, res) => {
   res.send(Experience.getCategories());
 };
@@ -120,8 +111,8 @@ exports.getSubmissionTypes = (req, res) => {
   res.send(Experience.getSubmissionTypes());
 };
 
-exports.getSubmissionTypes = (req, res) => {
-  res.send(Experience.getSubmissionTypes());
+exports.getStatusTypes = (req, res) => {
+  res.send(Experience.getStatusTypes());
 };
 
 exports.addStrength = async (req, res) => {
