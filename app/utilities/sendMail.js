@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   host: "SMTP.oc.edu",
@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   logger: true,
 });
 
-const sendMail = async (from, to, cc, subject, body) => {
+export async function sendMail(from, to, cc, subject, body) {
   const mailOptions = {
     from: from,
     to: to,
@@ -30,6 +30,7 @@ const sendMail = async (from, to, cc, subject, body) => {
   //     }
   //   });
   // });
-};
 
-module.exports = { sendMail };
+  // For testing, just return success
+  return { message: `${mailOptions}` };
+}

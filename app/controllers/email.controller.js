@@ -1,6 +1,6 @@
-const { sendMail } = require('../utilities/sendMai');
+import { sendMail } from '../utilities/sendMail.js';
 
-exports.sendNotification = async (req, res) => {
+export const sendNotification = async (req, res) => {
   try {
     const { to, subject, body } = req.body;
     const from = 'OC Flight Plan <no-reply@oc.edu>';
