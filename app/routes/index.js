@@ -19,6 +19,7 @@ import SubmissionRoutes from "./submission.routes.js";
 import FileRoutes from "./file.routes.js";
 import MajorRoutes from "./major.routes.js";
 import SemesterRoutes from "./semester.routes.js";
+import EmailRoutes from "./email.routes.js";
 
 // Resume Items
 import AwardItemRoutes from "./awardItem.routes.js";
@@ -64,6 +65,7 @@ router.use("/submission", SubmissionRoutes);
 router.use("/file", FileRoutes);
 router.use("/majors", MajorRoutes);
 router.use("/semesters", SemesterRoutes);
+router.use("/email", EmailRoutes);
 
 // Resume Items
 router.use("/awardItems", AwardItemRoutes);

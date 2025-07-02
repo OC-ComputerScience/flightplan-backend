@@ -4,11 +4,11 @@ const transporter = nodemailer.createTransport({
   host: "SMTP.oc.edu",
   port: 25,
   secure: false,
-  debug: true, // show debug output
-  logger: true, // log information in console
+  debug: true,
+  logger: true,
 });
 
-const sendMail = (from, to, cc, subject, body) => {
+const sendMail = async (from, to, cc, subject, body) => {
   const mailOptions = {
     from: from,
     to: to,
@@ -17,17 +17,19 @@ const sendMail = (from, to, cc, subject, body) => {
     text: body,
   };
 
-// Comment out below code block and console log
+  console.log(mailOptions);
 
-    console.log(mailOptions);
-
-//   transporter.sendMail(mailOptions, (error, info) => {
-//     if (error) {
-//       console.log("Error: " + error);
-//     } else {
-//       console.log("Email sent: " + info.response);
-//     }
-//   });
+  // return new Promise((resolve, reject) => {
+  //   transporter.sendMail(mailOptions, (error, info) => {
+  //     if (error) {
+  //       console.error("Error sending email:", error);
+  //       reject(error);
+  //     } else {
+  //       console.log("Email sent:", info.response);
+  //       resolve(info);
+  //     }
+  //   });
+  // });
 };
 
 module.exports = { sendMail };
