@@ -20,6 +20,13 @@ const Badge = SequelizeInstance.define("badge", {
     type: Sequelize.ENUM("Task and Experience Defined"),
     defaultValue: "Task and Experience Defined",
   },
+  status: {
+    type: Sequelize.ENUM(
+      "active", 
+      "inactive"
+    ),
+    defaultValue: "active",
+  }
 });
 
 export default Badge;
