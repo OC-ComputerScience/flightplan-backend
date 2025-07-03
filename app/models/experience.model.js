@@ -33,6 +33,13 @@ const Experience = SequelizeInstance.define("experience", {
       "every-other-semester",
     ),
   },
+  status: {
+    type: Sequelize.ENUM(
+      "active",
+      "inactive"
+    ),
+    defaultValue: "active",
+  },
   semestersFromGrad: {
     type: Sequelize.INTEGER,
   },

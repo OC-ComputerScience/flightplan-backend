@@ -22,10 +22,12 @@ router.get("/:id", [authenticate], experience.findOne);
 // Update a Experience with id
 router.put("/:id", [authenticate, isAdmin], experience.update);
 
-// Delete a Experience with id
-router.delete("/:id", [authenticate, isAdmin], experience.delete);
-
 router.get("/types/categories", [authenticate], experience.getCategories);
+
+router.get("/types/statusTypes", [authenticate], experience.getStatusTypes);
+
+// Retrieve all active Experience
+router.get("/active", [authenticate], experience.findAllActive);
 
 // router.get("/types/fulfillingEvents", [authenticate], experience.getFulfillingEvents);
 
@@ -39,12 +41,6 @@ router.get(
   "/types/schedulingTypes",
   [authenticate],
   experience.getSchedulingTypes,
-);
-
-router.get(
-  "/types/submissionTypes",
-  [authenticate],
-  experience.getSubmissionTypes,
 );
 
 router.put("/:id/strengths", [authenticate], experience.addStrength);
