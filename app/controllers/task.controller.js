@@ -81,6 +81,18 @@ exports.findAllOptionalForStudentId = async (req, res) => {
     });
 };
 
+exports.findAllActive = async (req, res) => {
+  await Task.findAllActiveTasks()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving tasks.",
+      });
+    });
+};
+
 exports.update = async (req, res) => {
   await Task.updateTask(req.body, req.params.id)
     .then((num) => {
@@ -102,27 +114,6 @@ exports.update = async (req, res) => {
     });
 };
 
-exports.delete = async (req, res) => {
-  await Task.deleteTask(req.params.id)
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Task was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete task with id = ${req.params.id}. Maybe task was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete task with id = " + req.params.id,
-      });
-      console.log("Could not delete task: " + err);
-    });
-};
-
 exports.getCategories = (req, res) => {
   res.send(Task.getCategories());
 };
@@ -133,6 +124,10 @@ exports.getSchedulingTypes = (req, res) => {
 
 exports.getSubmissionTypes = (req, res) => {
   res.send(Task.getSubmissionTypes());
+};
+
+exports.getStatusTypes = (req, res) => {
+  res.send(Task.getStatusTypes());
 };
 
 exports.addMajor = async (req, res) => {
