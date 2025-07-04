@@ -62,6 +62,12 @@ const Experience = SequelizeInstance.define("experience", {
     type: Sequelize.INTEGER,
     defaultValue: 1,
   },
+  instructions: {
+    type: Sequelize.STRING,
+  },
+  instructionsLink: {
+    type: Sequelize.STRING, 
+  },
 });
 
 export default Experience;
