@@ -37,8 +37,8 @@ exports.findOne = async (req, res) => {
 exports.findAllBadgesForStudent = async (req, res) => {
   await Badge.findAllBadgesForStudent(
     req.params.id,
-    req.body.page,
-    req.body.pageSize,
+    req.query.page,
+    req.query.pageSize,
   )
     .then((result) => {
       res.send(result);
