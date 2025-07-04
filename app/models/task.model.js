@@ -52,6 +52,12 @@ const Task = SequelizeInstance.define("task", {
   points: {
     type: Sequelize.INTEGER,
   },
+  instructions: {
+    type: Sequelize.STRING,
+  },
+  instructionsLink: {
+    type: Sequelize.STRING, 
+  },
 });
 
 export default Task;
