@@ -125,6 +125,10 @@ exports.getRuleTypes = () => {
   return Badge.getAttributes().ruleType.values;
 };
 
+exports.getStatusTypes = () => {
+  return Badge.getAttributes().status.values;
+};
+
 exports.getUnviewedBadges = async (studentId) => {
   return Badge.findAll({
     include: {
