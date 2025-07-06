@@ -84,6 +84,18 @@ exports.findOneEvent = async (eventId) => {
   });
 };
 
+exports.findPastEventsWithUpcoming = async () => {
+  const data = await Event.findAll({
+    where: {
+      status: "Upcoming",
+      endTime: {
+        [Op.lt]: new Date(),
+      },
+    },
+  });
+  return data;
+};
+
 exports.findEventByToken = async (eventToken) => {
   const data = await EventCheckInToken.findOne({
     where: {

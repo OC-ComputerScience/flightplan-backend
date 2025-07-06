@@ -2,6 +2,7 @@ import express, { json, urlencoded } from "express";
 import SequelizeInstance from "./app/sequelizeUtils/sequelizeInstance.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";
+import tasks from "./app/background/hourly.js";
 
 var alterDB = false;
 
@@ -30,6 +31,10 @@ app.use(json());
 app.use(urlencoded({ extended: true }));
 
 app.use("/flight-plan-t1", routes); // Load the routes from the routes folder
+
+// start background tasks
+
+tasks.hourlyTasks();
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3100;

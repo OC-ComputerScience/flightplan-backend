@@ -31,12 +31,12 @@ const Event = SequelizeInstance.define("event", {
     // ENUM NEED TO BE DEFINED
   },
   registration: {
-    type: Sequelize.ENUM("In App", "Handshake"),
+    type: Sequelize.ENUM("In App", "Handshake", "None"),
   },
   status: {
-    type: Sequelize.ENUM("Upcoming", "Completed", "Cancelled"),
+    type: Sequelize.ENUM("Upcoming", "Completed", "Cancelled", "Past"),
     defaultValue: "Upcoming",
   },
 });
-
+  
 export default Event;
