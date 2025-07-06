@@ -9,9 +9,9 @@ const exports = {};
 exports.hourlyTasks =  () => {
   // for prod, runs at ever hour at 05 minute past the hour.
   cron.schedule("05 * * * *", async function () {
-    // for testing, runs every minute
+  // for testing, runs every minute
   //   cron.schedule("* * * * *", async function () {
-    console.log("Every Hourly Taks:");
+    console.log("Hourly Task is running at 05 minutes past the hour");
     await checkForPastEvents();
   
   });
