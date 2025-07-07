@@ -17,20 +17,20 @@ export async function sendMail(from, to, cc, subject, body) {
     text: body,
   };
 
-  console.log(mailOptions);
+  // console.log(mailOptions);
 
-  // return new Promise((resolve, reject) => {
-  //   transporter.sendMail(mailOptions, (error, info) => {
-  //     if (error) {
-  //       console.error("Error sending email:", error);
-  //       reject(error);
-  //     } else {
-  //       console.log("Email sent:", info.response);
-  //       resolve(info);
-  //     }
-  //   });
-  // });
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email:", error);
+        reject(error);
+      } else {
+        console.log("Email sent:", info.response);
+        resolve(info);
+      }
+    });
+  });
 
   // For testing, just return success
-  return { message: `${mailOptions}` };
+  // return { message: `${mailOptions}` };
 }
