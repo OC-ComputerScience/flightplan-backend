@@ -14,7 +14,7 @@ export async function sendMail(from, to, cc, subject, body) {
     to: to,
     cc: cc,
     subject: subject,
-    text: body,
+    html: body,
   };
 
   // console.log(mailOptions);
