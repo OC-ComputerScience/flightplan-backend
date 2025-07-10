@@ -29,6 +29,10 @@ const Reward = SequelizeInstance.define("reward", {
   quantityAvaliable: {
     type: Sequelize.INTEGER,
     allowNull: true,
+  },
+  status: {
+    type: Sequelize.ENUM("Active", "Inactive"),
+    defaultValue: "Active",
   }
 });
 
