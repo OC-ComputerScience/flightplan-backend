@@ -26,6 +26,8 @@ router.get(
   student.findStudentForFlightPlanId,
 );
 
+router.put("/:id/checkSemesterFromGraduation", [authenticate], student.checkStudentSemesterFromGraduation)
+
 router.put("/:id/points", [authenticate, isAdmin], student.updatePoints);
 
 router.get("/:id/points", [authenticate], student.getPoints);
