@@ -35,7 +35,7 @@ router.post("/upload", [authenticate, isAdmin], reward.uploadImage);
 router.get("/image/:fileName", [authenticate, isAdmin], reward.getImageForName);
 
 // Retrieve all status types
-router.get("/statusTypes", [authenticate], reward.getStatusTypes);
+router.get("/types/statusTypes", [authenticate], reward.getStatusTypes);
 
 router.delete(
   "/image/:fileName",
