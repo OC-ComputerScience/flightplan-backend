@@ -81,7 +81,7 @@ exports.findAllRewardsForStudent = async (studentId) => {
 exports.findAllActiveRewardsForStudent = async (studentId) => {
   const response = await Reward.findAll({
     where: {
-      status: "Active",
+      status: "active",
     },
     include: {
       model: Student,
@@ -97,7 +97,7 @@ exports.findAllActiveRewardsForStudent = async (studentId) => {
 exports.findAllActiveRewards = async () => {
   const response = await Reward.findAll({
     where: {
-      status: "Active",
+      status: "active",
     },
   });
   return getFilesForRewards(response);
@@ -106,7 +106,7 @@ exports.findAllActiveRewards = async () => {
 exports.findAllInactiveRewards = async () => {
   const response = await Reward.findAll({
     where: {
-      status: "Inactive",
+      status: "inactive",
     },
   });
   return getFilesForRewards(response);
@@ -187,7 +187,7 @@ exports.redeemReward = async (rewardId, studentId, userId) => {
 };
 
 exports.getStatusTypes = () => {
-  return Reward.getAttributes("status").values;
+  return Reward.getAttributes().status.values;
 };
 
 const getFilesForRewards = (rewards) =>

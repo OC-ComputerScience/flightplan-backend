@@ -109,14 +109,7 @@ exports.findAllInactiveRewards = async (req, res) => {
 };
 
 exports.getStatusTypes = async (req, res) => {
-  try {
-    const statusTypes = await Reward.getStatusTypes();
-    res.send(statusTypes);
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || "Some error occurred while retrieving status types.",
-    });
-  }
+  res.send(Reward.getStatusTypes());
 };
 
 exports.update = async (req, res) => {

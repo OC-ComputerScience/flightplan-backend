@@ -31,8 +31,8 @@ const Reward = SequelizeInstance.define("reward", {
     allowNull: true,
   },
   status: {
-    type: Sequelize.ENUM("Active", "Inactive"),
-    defaultValue: "Active",
+    type: Sequelize.ENUM("active", "inactive"),
+    defaultValue: "active",
   }
 });
 
