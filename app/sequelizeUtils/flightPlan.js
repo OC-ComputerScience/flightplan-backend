@@ -47,14 +47,14 @@ exports.generateFlightPlan = async (studentId) => {
     throw Error("Student's flight plan has already been generated for this semester.")
   }
 
-  // Check for current semester, checks for next semester, creates next semester
+  // Check for current semester, checks for next semester
   let currentSemester = (await SemesterUtils.getCurrentSemester());
   if (!currentSemester) {
-    const nextExpectedSemester = (await SemesterUtils.getNextExpectedSemester());
+    const nextExpectedSemester = (await SemesterUtils.getNextSemester());
     if(nextExpectedSemester) {
       currentSemester = nextExpectedSemester;
     } else {
-      currentSemester = await SemesterUtils.createNextExpectedSemester();
+      throw Error("Next semester not found, please create a new semester")
     }
   }
 
