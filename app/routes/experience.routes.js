@@ -27,7 +27,10 @@ router.get("/types/categories", [authenticate], experience.getCategories);
 router.get("/types/statusTypes", [authenticate], experience.getStatusTypes);
 
 // Retrieve all active Experience
-router.get("/active", [authenticate], experience.findAllActive);
+router.get("/active", [authenticate], experience.findAllActiveExperiences);
+
+// Retrieve all inactive Experience
+router.get("/inactive", [authenticate], experience.findAllInactiveExperiences);
 
 // router.get("/types/fulfillingEvents", [authenticate], experience.getFulfillingEvents);
 

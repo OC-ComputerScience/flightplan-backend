@@ -82,7 +82,15 @@ exports.findAllActiveBadges = async (page = 1, pageSize = 10) => {
     where: whereCondition,
   });
 
-  return { badges };
+  badges = getFilesForBadges(badges);
+
+  const count = await Badge.count({
+    where: whereCondition, // Apply the search condition to the count as well
+  });
+
+  const totalPages = Math.ceil(count / pageSize);
+
+  return { badges, count: totalPages };
 };
 
 exports.findAllInactiveBadges = async (page = 1, pageSize = 10) => {
@@ -97,7 +105,15 @@ exports.findAllInactiveBadges = async (page = 1, pageSize = 10) => {
     where: whereCondition,
   });
 
-  return { badges };
+  badges = getFilesForBadges(badges);
+
+  const count = await Badge.count({
+    where: whereCondition, // Apply the search condition to the count as well
+  });
+
+  const totalPages = Math.ceil(count / pageSize);
+
+  return { badges, count: totalPages };
 };
 
 exports.findOne = async (badgeId) => {

@@ -66,8 +66,20 @@ exports.findAllOptionalForStudentId = async (req, res) => {
     });
 };
 
-exports.findAllActive = async (req, res) => {
+exports.findAllActiveExperiences = async (req, res) => {
   await Experience.findAllActiveExperiences()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving experiences.",
+      });
+    });
+};
+
+exports.findAllInactiveExperiences = async (req, res) => {
+  await Experience.findAllInactiveExperiences()
     .then((data) => {
       res.send(data);
     })

@@ -120,6 +120,14 @@ exports.findAllActiveTasks = async () => {
   });
 };
 
+exports.findAllInactiveTasks = async () => {
+  return await Task.findAll({
+    where: {
+      status: "inactive",
+    },
+  });
+};
+
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );

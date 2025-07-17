@@ -19,10 +19,18 @@ router.get(
   task.findAllOptionalForStudentId,
 );
 
+// Retrieve all active Tasks
 router.get(
   "/active",
   [authenticate],
-  task.findAllActive,
+  task.findAllActiveTasks,
+);
+
+// Retrieve all inactive Tasks
+router.get(
+  "/inactive",
+  [authenticate],
+  task.findAllInactiveTasks,
 );
 
 // Update a Task with id
@@ -34,6 +42,7 @@ router.get("/types/schedulingTypes", [authenticate], task.getSchedulingTypes);
 
 router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
 
+// Retrieve all status types
 router.get("/types/statusTypes", [authenticate], task.getStatusTypes);
 
 // TaskMajor
