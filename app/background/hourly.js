@@ -12,7 +12,7 @@ exports.hourlyTasks =  () => {
   // for testing, runs every minute
   //   cron.schedule("* * * * *", async function () {
     console.log("Hourly Task is running at 05 minutes past the hour");
-    await checkForPastEvents();
+    checkForPastEvents();
   
   });
 };
@@ -22,18 +22,20 @@ exports.hourlyTasks =  () => {
 async function checkForPastEvents() {
   let pastEvents = [];
 
-  await Event.findPastEventsWithUpcoming()
+  Event.findPastEventsWithUpcoming()
     .then((data) => {
       pastEvents = data;
+      for (let i = 0; i < pastEvents.length; i++) {
+      let event = pastEvents[i].dataValues;
+      event.status = "Past";
+      Event.updateEvent(event,event.id );
+      }
     })
     .catch((err) => {
       console.log("Could not find past appointments to notify: " + err);
     });
 
-  for (let i = 0; i < pastEvents.length; i++) {
-    let event = pastEvents[i].dataValues;
-    event.status = "Past";
-    await Event.updateEvent(event,event.id );
+
   }
     
 }
