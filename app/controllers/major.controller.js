@@ -141,8 +141,7 @@ exports.getAllMajors = async (req, res) => {
 exports.getMajorsForStudent = async (req, res) => {
   const studentId = req.params.id;
 
-  console.log("Received request for student ID:", studentId); // Log the incoming request
-
+  
   try {
     // Try fetching the student and include majors in the response
     const student = await Student.findOne({
@@ -157,7 +156,7 @@ exports.getMajorsForStudent = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    console.log(student.majors);
+    
 
     return res.status(200).json(student.majors);
   } catch (err) {
@@ -171,8 +170,7 @@ exports.getMajorsForStudent = async (req, res) => {
 exports.getMajorsForExperience = async (req, res) => {
   const experienceId = req.params.id;
 
-  console.log("Received request for experience ID:", experienceId); // Log the incoming request
-
+  
   try {
     // Try fetching the experience and include majors in the response
     const experience = await Experience.findOne({
@@ -187,7 +185,6 @@ exports.getMajorsForExperience = async (req, res) => {
       return res.status(404).json({ message: "Experience not found" });
     }
 
-    console.log(experience.majors);
 
     return res.status(200).json(experience.majors);
   } catch (err) {
@@ -201,8 +198,7 @@ exports.getMajorsForExperience = async (req, res) => {
 exports.getMajorsForEvent = async (req, res) => {
   const eventId = req.params.id;
 
-  console.log("Received request for event ID:", eventId); // Log the incoming request
-
+  
   try {
     // Try fetching the event and include majors in the response
     const event = await Event.findOne({

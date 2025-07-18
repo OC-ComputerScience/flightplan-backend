@@ -5,7 +5,7 @@ const User = db.user;
 
 export const authenticate = (req, res, next) => {
   let token = null;
-  console.log("authenticate");
+ 
   let authHeader = req.get("authorization");
   if (authHeader != null) {
     if (authHeader.startsWith("Bearer ")) {

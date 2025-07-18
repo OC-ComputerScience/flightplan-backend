@@ -44,9 +44,9 @@ exports.findAllForFlightPlanItem = async (req, res) => {
 
 exports.discardSubmissionForFlightPlanItem = async (req, res) => {
   Submission.discardSubmissionForFlightPlanItem(req.params.flightPlanItemId)
-    .then((data) => {
+    .then(() => {
       res.status(200).send({ message: "Submissions successfully deleted" });
-      console.log(data);
+     
     })
     .catch((err) => {
       res.status(500).send({

@@ -166,13 +166,13 @@ exports.deleteRewardImage = async (req, res) => {
 
 exports.redeemReward = async (req, res) => {
   try {
-    console.log(req.params.id, req.body.studentId, req.body.userId);
+
     const result = await Reward.redeemReward(
       req.params.id,
       req.body.studentId,
       req.body.userId,
     );
-    console.log(result);
+   
     res.status(200).json(result);
   } catch (err) {
     console.log("Could not redeem reward: " + err);
