@@ -177,7 +177,7 @@ exports.getFlightPlanItemStatuses = (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    console.log(req.params.id);
+   
     const flightPlanItem = await FlightPlanItem.findOneFlightPlanItem(
       req.params.id,
       null,
@@ -197,7 +197,7 @@ exports.update = async (req, res) => {
       req.body.eventId !== undefined
         ? req.body.eventId
         : flightPlanItem.eventId;
-    console.log(req.body);
+  
 
     // Validate the modified req.body
     validateFlightPlanItem(req.body); // Validate the incoming data, mark as update

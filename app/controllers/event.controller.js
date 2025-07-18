@@ -139,8 +139,7 @@ exports.getCompletionTypes = (req, res) => {
 exports.registerStudents = async (req, res) => {
   const eventId = req.params.id;
   const { studentIds } = req.body;
-  console.log(eventId);
-  console.log(studentIds);
+
   try {
     const data = await Event.registerStudents(eventId, studentIds);
     res.send(data);
@@ -213,7 +212,7 @@ exports.markAttendance = async (req, res) => {
     );
 
     const data = await Event.markAttendance(eventId, studentIds);
-    console.log("Database update result:", data);
+   
     res.send(data);
   } catch (err) {
     console.error("Error marking attendance:", err);

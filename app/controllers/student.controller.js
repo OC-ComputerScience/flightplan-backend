@@ -158,7 +158,7 @@ exports.updatePoints = async (req, res) => {
 exports.getPoints = async (req, res) => {
   await Student.getPoints(req.params.id)
     .then((data) => {
-      console.log("data", data);
+    
       res.send({ points: data });
     })
     .catch((err) => {

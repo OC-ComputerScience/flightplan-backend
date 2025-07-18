@@ -5,7 +5,7 @@ const exports = {};
 exports.create = async (req, res) => {
   await Badge.create(req.body)
     .then((data) => {
-      console.log(data);
+     
       res.send(data);
     })
     .catch((err) => {

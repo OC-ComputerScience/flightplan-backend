@@ -10,8 +10,7 @@ const exports = {};
 exports.getStrengthsForStudent = async (req, res) => {
   const studentId = req.params.id;
 
-  console.log("Received request for student ID:", studentId); // Log the incoming request
-
+ 
   try {
     // Try fetching the student and include strengths in the response
     const student = await Student.findOne({
@@ -26,7 +25,7 @@ exports.getStrengthsForStudent = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    console.log(student.strengths);
+  
 
     return res.status(200).json(student.strengths);
   } catch (err) {
@@ -39,8 +38,6 @@ exports.getStrengthsForStudent = async (req, res) => {
 
 exports.getStrengthsForExperience = async (req, res) => {
   const experienceId = req.params.id;
-
-  console.log("Received request for experience ID:", experienceId); // Log the incoming request
 
   try {
     // Try fetching the experience and include strengths in the response
@@ -56,7 +53,6 @@ exports.getStrengthsForExperience = async (req, res) => {
       return res.status(404).json({ message: "Experience not found" });
     }
 
-    console.log(experience.strengths);
 
     return res.status(200).json(experience.strengths);
   } catch (err) {
@@ -74,8 +70,7 @@ exports.getStrengthsForExperience = async (req, res) => {
 exports.getStrengthsForEvent = async (req, res) => {
   const eventId = req.params.id;
 
-  console.log("Received request for event ID:", eventId); // Log the incoming request
-
+ 
   try {
     // Try fetching the event and include strengths in the response
     const event = await Event.findOne({
@@ -90,7 +85,7 @@ exports.getStrengthsForEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    console.log(event.strengths);
+  
 
     return res.status(200).json(event.strengths);
   } catch (err) {
