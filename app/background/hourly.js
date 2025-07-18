@@ -37,8 +37,6 @@ async function checkForPastEvents() {
 
 
   }
-    
-}
 
 export default exports;
     
