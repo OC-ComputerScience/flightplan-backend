@@ -72,6 +72,46 @@ exports.findAllRewardsForStudent = async (req, res) => {
     });
 };
 
+exports.findAllActiveRewardsForStudent = async (req, res) => {
+  await Reward.findAllActiveRewardsForStudent(req.params.id)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving rewards.",
+      });
+    });
+};
+
+exports.findAllActiveRewards = async (req, res) => {
+  await Reward.findAllActiveRewards()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving rewards.",
+      });
+    });
+};
+
+exports.findAllInactiveRewards = async (req, res) => {
+  await Reward.findAllInactiveRewards()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving rewards.",
+      });
+    });
+};
+
+exports.getStatusTypes = async (req, res) => {
+  res.send(Reward.getStatusTypes());
+};
+
 exports.update = async (req, res) => {
   await Reward.updateReward(req.body, req.params.id)
     .then((num) => {
@@ -90,27 +130,6 @@ exports.update = async (req, res) => {
         message: "Error updating reward with id = " + req.params.id,
       });
       console.log("Could not update reward: " + err);
-    });
-};
-
-exports.delete = async (req, res) => {
-  await Reward.deleteReward(req.params.id)
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Reward was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete reward with id = ${req.params.id}. Maybe reward was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete reward with id = " + req.params.id,
-      });
-      console.log("Could not delete reward: " + err);
     });
 };
 
