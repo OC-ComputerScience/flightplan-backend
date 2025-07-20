@@ -17,10 +17,12 @@ exports.create = async (submissionData) => {
     const submission = await Submission.create(submissionData, {
       transaction: t,
     });
+    if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
       { status: "Pending" },
       { where: { id: submission.flightPlanItemId }, transaction: t },
     );
+  }
 
     const flightPlanItem = await FlightPlanItem.findOne({
       where: { id: submission.flightPlanItemId },
@@ -68,10 +70,12 @@ exports.bulkCreate = async (submissionData) => {
       transaction: t,
     });
 
+    if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
       { status: "Pending" },
       { where: { id: submissionData[0].flightPlanItemId }, transaction: t },
     );
+  }
 
     const flightPlanItem = await FlightPlanItem.findOne({
       where: { id: submissionData[0].flightPlanItemId },

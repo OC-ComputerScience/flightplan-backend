@@ -13,6 +13,10 @@ const Submission = SequelizeInstance.define("submission", {
   value: {
     type: Sequelize.TEXT("long"),
   },
+  isAutomatic: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
 });
 
 export default Submission;
