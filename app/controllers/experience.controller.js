@@ -1,4 +1,7 @@
 import Experience from "../sequelizeUtils/experience.js";
+import db from "../models/index.js";
+const Event = db.event;
+const ExperienceModel = db.experience;
 
 const exports = {};
 
@@ -113,6 +116,36 @@ exports.getSubmissionTypes = (req, res) => {
 
 exports.getStatusTypes = (req, res) => {
   res.send(Experience.getStatusTypes());
+};
+
+exports.getExperiencesForEvent = async (req, res) => {
+  const eventId = req.params.id;
+  try {
+    // Try fetching the event and include experience in the response
+    const event = await Event.findOne({
+      where: { id: eventId }, // Find the event by ID
+      include: {
+        model: ExperienceModel, // Include the related Experience model
+        as: 'experiences',
+        through: { attributes: [] }, // Exclude join table attributes (only experience)
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    return res.status(200).json(event.experiences);
+  } catch (err) {
+    console.error(
+      "Error fetching experiences for event:",
+      eventId,
+      err,
+    ); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error fetching experiences", error: err.message });
+  }
 };
 
 exports.addStrength = async (req, res) => {

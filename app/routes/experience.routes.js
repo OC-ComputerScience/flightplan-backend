@@ -43,6 +43,14 @@ router.get(
   experience.getSchedulingTypes,
 );
 
+router.get(
+  "/event/:id",
+  (req, res, next) => {
+    next(); // Make sure to pass control to the next middleware
+  },
+  experience.getExperiencesForEvent,
+);
+
 router.put("/:id/strengths", [authenticate], experience.addStrength);
 router.delete("/:id/strengths", [authenticate], experience.removeStrength);
 
