@@ -7,18 +7,6 @@ const router = Router();
 // Create a new Task
 router.post("/", [authenticate, isAdmin], task.create);
 
-// Retrieve a single Task with id
-router.get("/:id", [authenticate], task.findOne);
-
-// Retrieve all Tasks
-router.get("/", [authenticate], task.findAll);
-
-router.get(
-  "/optional/:studentId",
-  [authenticate],
-  task.findAllOptionalForStudentId,
-);
-
 // Retrieve all active Tasks
 router.get(
   "/active",
@@ -31,6 +19,18 @@ router.get(
   "/inactive",
   [authenticate],
   task.findAllInactiveTasks,
+);
+
+// Retrieve all Tasks
+router.get("/", [authenticate], task.findAll);
+
+// Retrieve a single Task with id
+router.get("/:id", [authenticate], task.findOne);
+
+router.get(
+  "/optional/:studentId",
+  [authenticate],
+  task.findAllOptionalForStudentId,
 );
 
 // Update a Task with id

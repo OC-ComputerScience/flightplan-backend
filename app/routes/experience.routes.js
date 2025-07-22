@@ -10,6 +10,12 @@ router.post("/", [authenticate, isAdmin], experience.create);
 // Retrieve all Experience
 router.get("/", [authenticate], experience.findAll);
 
+// Retrieve all active Experience
+router.get("/active", [authenticate], experience.findAllActiveExperiences);
+
+// Retrieve all inactive Experience
+router.get("/inactive", [authenticate], experience.findAllInactiveExperiences);
+
 router.get(
   "/optional/:studentId",
   [authenticate],
@@ -25,12 +31,6 @@ router.put("/:id", [authenticate, isAdmin], experience.update);
 router.get("/types/categories", [authenticate], experience.getCategories);
 
 router.get("/types/statusTypes", [authenticate], experience.getStatusTypes);
-
-// Retrieve all active Experience
-router.get("/active", [authenticate], experience.findAllActiveExperiences);
-
-// Retrieve all inactive Experience
-router.get("/inactive", [authenticate], experience.findAllInactiveExperiences);
 
 // router.get("/types/fulfillingEvents", [authenticate], experience.getFulfillingEvents);
 
