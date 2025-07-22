@@ -19,7 +19,7 @@ const verifyFirebaseToken = async (idToken) => {
   const nameParts = decoded.name?.split(" ") || [];
   const firstName = nameParts[0];
   const lastName = nameParts.slice(1).join(" ") || "";
-  console.log("Verified Firebase token");
+
   return { email, firstName, lastName };
 };
 
@@ -33,7 +33,7 @@ const verifyGoogleToken = async (idToken) => {
   const email = payload.email;
   const firstName = payload.given_name;
   const lastName = payload.family_name;
-  console.log("Verified Google ID token");
+
   return { email, firstName, lastName };
 };
 
@@ -43,7 +43,7 @@ const getUserInfoFromAccessToken = async (accessToken) => {
     oauth2Client.setCredentials({ access_token: accessToken });
     const oauth2 = google.oauth2({ auth: oauth2Client, version: "v2" });
     const { data } = await oauth2.userinfo.get();
-    console.log("Retrieved user info with access token");
+    
     return {
       email: data.email,
       firstName: data.given_name,
@@ -104,7 +104,7 @@ exports.login = async (req, res) => {
 
     const { email, firstName, lastName } = userInfo;
     const fullName = `${firstName} ${lastName}`.trim();
-    console.log(`User login attempt: ${email}`);
+  
 
     let user = await User.findOne({
       where: { email },
@@ -118,14 +118,14 @@ exports.login = async (req, res) => {
         email,
         fullName,
       });
-      console.log("User registered:", user.dataValues);
+      
     } else {
       await user.update({
         fName: firstName,
         lName: lastName,
         fullName,
       });
-      console.log("User details updated");
+    
     }
 
     // Handle session
@@ -162,7 +162,7 @@ exports.login = async (req, res) => {
       token: session.token,
     };
 
-    console.log("Login successful:", userInfoObj);
+    
     return res.send(userInfoObj);
   } catch (error) {
     console.error("Login error:", error);
@@ -171,20 +171,20 @@ exports.login = async (req, res) => {
 };
 
 exports.authorize = async (req, res) => {
-  console.log("authorize client");
+ 
   const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET,
     "postmessage",
   );
 
-  console.log("authorize token");
+
   // Get access and refresh tokens (if access_type is offline)
   let { tokens } = await oauth2Client.getToken(req.body.code);
   oauth2Client.setCredentials(tokens);
 
   let user = {};
-  console.log("findUser");
+
 
   await User.findOne({
     where: {
@@ -200,8 +200,7 @@ exports.authorize = async (req, res) => {
       res.status(500).send({ message: err.message });
       return;
     });
-  console.log("user");
-  console.log(user);
+
   user.refresh_token = tokens.refresh_token;
   let tempExpirationDate = new Date();
   tempExpirationDate.setDate(tempExpirationDate.getDate() + 100);
@@ -220,19 +219,18 @@ exports.authorize = async (req, res) => {
         refresh_token: user.refresh_token,
         expiration_date: user.expiration_date,
       };
-      console.log(userInfo);
+     
       res.send(userInfo);
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
     });
 
-  console.log(tokens);
-  console.log(oauth2Client);
+
 };
 
 exports.logout = async (req, res) => {
-  console.log(req.body);
+
   if (req.body === null) {
     res.send({
       message: "User has already been successfully logged out!",
@@ -262,12 +260,12 @@ exports.logout = async (req, res) => {
     Session.update(session, { where: { id: session.id } })
       .then((num) => {
         if (num == 1) {
-          console.log("successfully logged out");
+          
           res.send({
             message: "User has been successfully logged out!",
           });
         } else {
-          console.log("failed");
+          console.log("failed logging out user");
           res.send({
             message: `Error logging out user.`,
           });
@@ -280,7 +278,7 @@ exports.logout = async (req, res) => {
         });
       });
   } else {
-    console.log("already logged out");
+   
     res.send({
       message: "User has already been successfully logged out!",
     });

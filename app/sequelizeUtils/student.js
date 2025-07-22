@@ -10,6 +10,9 @@ const Op = db.Sequelize.Op;
 const User = db.user;
 const Major = db.major;
 
+// Sequelize Utilities
+import FlightPlanUtils from "../sequelizeUtils/flightPlan.js";
+
 const exports = {};
 
 exports.findStudentForUserId = async (userId) => {
@@ -133,6 +136,19 @@ exports.findStudentForFlightPlanId = async (flightPlanId) => {
     ],
   });
 };
+
+exports.checkStudentSemesterFromGraduation = async (studentId) => {
+  let student = await Student.findByPk(studentId);
+
+  const flightPlan = await FlightPlanUtils.getFlightPlanForStudentAndSemester(studentId, student.semestersFromGrad);
+  if (flightPlan) {
+    const semester = await Semester.findByPk(flightPlan.semesterId);
+    if (semester.endDate < new Date())
+      student.semestersFromGrad--;
+  }
+
+  return await student.save();
+}
 
 exports.addPoints = async (studentId, points) => {
   const student = await Student.findByPk(studentId);

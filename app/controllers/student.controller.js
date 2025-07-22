@@ -125,6 +125,24 @@ exports.findStudentForFlightPlanId = async (req, res) => {
     });
 };
 
+exports.checkStudentSemesterFromGraduation = async (req, res) => {
+  await Student.checkStudentSemesterFromGraduation(req.params.id)
+    .then((num) => {
+      if (num == 1) {
+        res.send({ message: "Student semester from graduation updated successfully." });
+      } else {
+        res.send({
+          message: `Student with id=${req.params.id} not found or no updates provided.`,
+        });
+      }
+    })
+    .catch(() =>
+      res
+        .status(500)
+        .send({ message: `Error updating Student with id=${req.params.id}` }),
+    );
+};
+
 exports.updatePoints = async (req, res) => {
   await Student.updatePoints(req.params.id, req.body.points)
     .then((data) => {
@@ -140,7 +158,7 @@ exports.updatePoints = async (req, res) => {
 exports.getPoints = async (req, res) => {
   await Student.getPoints(req.params.id)
     .then((data) => {
-      console.log("data", data);
+    
       res.send({ points: data });
     })
     .catch((err) => {

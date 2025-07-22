@@ -70,6 +70,36 @@ exports.findAllBadgesForStudent = async (
   return { badges, total: response.count, count: totalPages };
 };
 
+exports.findAllActiveBadges = async (page = 1, pageSize = 10) => {
+  page = parseInt(page, 10);
+  pageSize = parseInt(pageSize, 10);
+  const offset = (page - 1) * pageSize;
+  const limit = pageSize;
+  const whereCondition = { status: "active" };
+  let badges = await Badge.findAll({
+    offset,
+    limit,
+    where: whereCondition,
+  });
+
+  return { badges };
+};
+
+exports.findAllInactiveBadges = async (page = 1, pageSize = 10) => {
+  page = parseInt(page, 10);
+  pageSize = parseInt(pageSize, 10);
+  const offset = (page - 1) * pageSize;
+  const limit = pageSize;
+  const whereCondition = { status: "inactive" };
+  let badges = await Badge.findAll({
+    offset,
+    limit,
+    where: whereCondition,
+  });
+
+  return { badges };
+};
+
 exports.findOne = async (badgeId) => {
   const response = await Badge.findOne({
     where: { id: badgeId },
@@ -93,6 +123,10 @@ exports.findByPk = async (badgeId) => {
 
 exports.getRuleTypes = () => {
   return Badge.getAttributes().ruleType.values;
+};
+
+exports.getStatusTypes = () => {
+  return Badge.getAttributes().status.values;
 };
 
 exports.getUnviewedBadges = async (studentId) => {
@@ -173,11 +207,6 @@ exports.update = async (badgeData, badgeId) => {
   }
 
   return await Badge.update(badgeData, { where: { id: badgeId } });
-};
-
-exports.deleteBadge = async (badgeId) => {
-  await BadExpTask.destroy({ where: { badgeId: badgeId } });
-  return await Badge.destroy({ where: { id: badgeId } });
 };
 
 exports.getUnviewedBadges = async (studentId) => {

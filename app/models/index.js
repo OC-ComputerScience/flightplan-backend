@@ -7,6 +7,8 @@ import Badge from "./badge.model.js";
 import Event from "./event.model.js";
 import EventCheckinTokens from "./eventCheckinTokens.js";
 import EventType from "./eventType.model.js";
+import EventStrength from "./eventStrength.model.js";
+import EventMajor from "./eventMajor.model.js";
 import Experience from "./experience.model.js";
 import ExperienceStrength from "./experienceStrength.model.js";
 import ExperienceMajor from "./experienceMajor.model.js";
@@ -61,6 +63,8 @@ db.badge = Badge;
 db.event = Event;
 db.eventCheckinTokens = EventCheckinTokens;
 db.eventType = EventType;
+db.eventStrength = EventStrength;
+db.eventMajor = EventMajor;
 db.experience = Experience;
 db.experienceStrength = ExperienceStrength;
 db.experienceMajor = ExperienceMajor;
@@ -285,9 +289,14 @@ Experience.belongsToMany(Event, { through: "expOption", as: "events" });
 Event.belongsToMany(Experience, { through: "expOption", as: "experiences" });
 
 // EVENTSTRENGTH
-Event.belongsToMany(Strength, { through: "eventStrength" });
-Strength.belongsToMany(Event, { through: "eventStrength" });
+Event.belongsToMany(Strength, {through: EventStrength, foreignKey: "eventId", onDelete: "CASCADE", });
+Strength.belongsToMany(Event, { through: EventStrength, foreignKey: "strengthId", onDelete: "CASCADE", });
 
+// EVENTMAJOR
+Event.belongsToMany(Major, { through: EventMajor, foreignKey: "eventId", onDelete: "CASCADE", });
+Major.belongsToMany(Event, { through: EventMajor, foreignKey: "majorId", onDelete: "CASCADE", });
+
+// STUDENTSTRENGTH
 Student.belongsToMany(Strength, {
   through: StudentStrength,
   foreignKey: "studentId",

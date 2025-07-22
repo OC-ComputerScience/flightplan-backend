@@ -4,6 +4,7 @@ const Major = db.major;
 const Experience = db.experience;
 const Task = db.task;
 const Student = db.student;
+const Event = db.event;
 
 const exports = {};
 
@@ -140,8 +141,7 @@ exports.getAllMajors = async (req, res) => {
 exports.getMajorsForStudent = async (req, res) => {
   const studentId = req.params.id;
 
-  console.log("Received request for student ID:", studentId); // Log the incoming request
-
+  
   try {
     // Try fetching the student and include majors in the response
     const student = await Student.findOne({
@@ -156,7 +156,7 @@ exports.getMajorsForStudent = async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    console.log(student.majors);
+    
 
     return res.status(200).json(student.majors);
   } catch (err) {
@@ -170,8 +170,7 @@ exports.getMajorsForStudent = async (req, res) => {
 exports.getMajorsForExperience = async (req, res) => {
   const experienceId = req.params.id;
 
-  console.log("Received request for experience ID:", experienceId); // Log the incoming request
-
+  
   try {
     // Try fetching the experience and include majors in the response
     const experience = await Experience.findOne({
@@ -186,11 +185,39 @@ exports.getMajorsForExperience = async (req, res) => {
       return res.status(404).json({ message: "Experience not found" });
     }
 
-    console.log(experience.majors);
 
     return res.status(200).json(experience.majors);
   } catch (err) {
     console.error("Error fetching majors for experience:", experienceId, err); // Log the error
+    res
+      .status(500)
+      .json({ message: "Error fetching majors", error: err.message });
+  }
+};
+
+exports.getMajorsForEvent = async (req, res) => {
+  const eventId = req.params.id;
+
+  
+  try {
+    // Try fetching the event and include majors in the response
+    const event = await Event.findOne({
+      where: { id: eventId }, // Find the event by ID
+      include: {
+        model: Major, // Include the related Major model
+        through: { attributes: [] }, // Exclude join table attributes (only majors)
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    console.log(event.majors);
+
+    return res.status(200).json(event.majors);
+  } catch (err) {
+    console.error("Error fetching majors for event:", eventId, err); // Log the error
     res
       .status(500)
       .json({ message: "Error fetching majors", error: err.message });

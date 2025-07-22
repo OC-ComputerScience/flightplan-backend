@@ -29,6 +29,22 @@ exports.generate = async (req, res) => {
     });
 };
 
+exports.getFlightPlanForStudentAndSemester = async (req, res) => {
+  await FlightPlan.getFlightPlanForStudentAndSemester(
+    req.params.id,
+    req.query.semestersFromGraduation,
+  ).then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error("Error fetching flight plan for student at semester:", err);
+      res.status(500).json({
+        message: "Error retrieving flight plan for student at semester",
+        error: err.message,
+      });
+    });
+};
+
 exports.findOne = async (req, res) => {
   await FlightPlan.findOneFlightPlan(req.params.id)
     .then((data) => {

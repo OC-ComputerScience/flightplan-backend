@@ -35,25 +35,27 @@ exports.generateFlightPlan = async (studentId) => {
     throw Error("Unable to generate flight plan for student with invalid id");
   }
 
-  const currentSemester = await SemesterUtils.getCurrentSemester();
+  const student = await Student.findByPk(studentId);
 
+  const studentSemesterFromGraduation = student.get({ plain: true }).semestersFromGrad;
+  if (!(studentSemesterFromGraduation > 0)) {
+    throw Error("Student Already Graduated")
+  }
+
+  const currentFlightPlan = (await getFlightPlanForStudentAndSemester(studentId, studentSemesterFromGraduation));
+  if (currentFlightPlan) {
+    throw Error("Student's flight plan has already been generated for this semester.")
+  }
+
+  // Check for current semester, checks for next semester
+  let currentSemester = (await SemesterUtils.getCurrentSemester());
   if (!currentSemester) {
-    throw Error("Unable to get current semester");
-  }
-
-  const student = await Student.findByPk(studentId, {
-    include: [
-      {
-        model: FlightPlan,
-      },
-    ],
-  });
-
-  if (student.flightPlans[0]?.semestersFromGrad < 0) {
-    throw Error("Student semesters from graduation can't be negative");
-  }
-  if (student.flightPlans[0]?.semestersFromGrad === student.semestersFromGrad) {
-    throw Error("Student's flight plan has already been generated");
+    const nextExpectedSemester = (await SemesterUtils.getNextSemester());
+    if(nextExpectedSemester) {
+      currentSemester = nextExpectedSemester;
+    } else {
+      throw Error("Next semester not found, please create a new semester")
+    }
   }
 
   // // This is running under the assumption that the students semestersFromGrad has already been decremented and it is the current and updated value.
@@ -75,6 +77,31 @@ exports.generateFlightPlan = async (studentId) => {
 
   return flightPlanItems;
 };
+
+exports.getFlightPlanForStudentAndSemester = async (studentId, semestersFromGraduation) => {
+  return await getFlightPlanForStudentAndSemester(studentId, semestersFromGraduation);
+};
+
+const getFlightPlanForStudentAndSemester = async(studentId, semestersFromGraduation) => {
+  if (!studentId) {
+    throw Error("Unable to get flight plan for student with invalid id");
+  }
+
+  const student = await Student.findByPk(studentId, {
+    include: [
+      {
+        model: FlightPlan,
+      },
+    ],
+  });
+
+  const flightPlanForStudentAndSemester = student.flightPlans.map(fp => fp.get({ plain: true })).find((fp) => fp.semestersFromGrad == semestersFromGraduation);
+
+  if (!flightPlanForStudentAndSemester) {
+    return null;
+  }
+  return flightPlanForStudentAndSemester;
+}
 
 exports.findFlightPlanForStudent = async (studentId) => {
   return await FlightPlan.findAll({

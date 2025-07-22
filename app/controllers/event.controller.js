@@ -139,8 +139,7 @@ exports.getCompletionTypes = (req, res) => {
 exports.registerStudents = async (req, res) => {
   const eventId = req.params.id;
   const { studentIds } = req.body;
-  console.log(eventId);
-  console.log(studentIds);
+
   try {
     const data = await Event.registerStudents(eventId, studentIds);
     res.send(data);
@@ -213,7 +212,7 @@ exports.markAttendance = async (req, res) => {
     );
 
     const data = await Event.markAttendance(eventId, studentIds);
-    console.log("Database update result:", data);
+   
     res.send(data);
   } catch (err) {
     console.error("Error marking attendance:", err);
@@ -380,5 +379,63 @@ exports.importAttendance = async (req, res) => {
     });
   }
 };
+
+
+exports.addStrength = async (req, res) => {
+  await Event.addStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding strength to event.",
+      });
+    });
+};
+
+exports.removeStrength = async (req, res) => {
+  await Event.removeStrength(req.params.id, req.body.strengthId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing strength from event.",
+      });
+    });
+};
+
+exports.addMajor = async (req, res) => {
+  await Event.addMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while adding major to event.",
+      });
+    });
+};
+
+exports.removeMajor = async (req, res) => {
+  await Event.removeMajor(req.params.id, req.body.majorId)
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Some error occurred while removing major from event.",
+      });
+    });
+};
+
 
 export default exports;

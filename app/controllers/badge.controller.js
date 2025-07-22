@@ -5,7 +5,7 @@ const exports = {};
 exports.create = async (req, res) => {
   await Badge.create(req.body)
     .then((data) => {
-      console.log(data);
+     
       res.send(data);
     })
     .catch((err) => {
@@ -37,8 +37,8 @@ exports.findOne = async (req, res) => {
 exports.findAllBadgesForStudent = async (req, res) => {
   await Badge.findAllBadgesForStudent(
     req.params.id,
-    req.body.page,
-    req.body.pageSize,
+    req.query.page,
+    req.query.pageSize,
   )
     .then((result) => {
       res.send(result);
@@ -52,11 +52,45 @@ exports.findAllBadgesForStudent = async (req, res) => {
     });
 };
 
-exports.findAll = async (req, res) => {
-  await Badge.findAllBadges(
+exports.findAllActiveBadges = async (req, res) => {
+  await Badge.findAllActiveBadges(
     req.body.page,
     req.body.pageSize,
-    req.body.searchQuery,
+  )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error("Error fetching active badges:", err);
+      res.status(500).json({
+        message: "Error retrieving active badges",
+        error: err.message,
+      });
+    });
+};
+
+exports.findAllInactiveBadges = async (req, res) => {
+  await Badge.findAllInactiveBadges(
+    req.body.page,
+    req.body.pageSize,
+  )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((err) => {
+      console.error("Error fetching inactive badges:", err);
+      res.status(500).json({
+        message: "Error retrieving inactive badges",
+        error: err.message,
+      });
+    });
+};
+
+exports.findAll = async (req, res) => {
+  await Badge.findAllBadges(
+    req.query.page,
+    req.query.pageSize,
+    req.query.searchQuery,
   )
     .then((result) => {
       res.send(result);
@@ -72,6 +106,10 @@ exports.findAll = async (req, res) => {
 
 exports.getRuleTypes = async (req, res) => {
   res.send(Badge.getRuleTypes());
+};
+
+exports.getStatusTypes = async (req, res) => {
+  res.send(Badge.getStatusTypes());
 };
 
 exports.getUnviewedBadges = async (req, res) => {
@@ -102,28 +140,6 @@ exports.update = async (req, res) => {
     console.error("Error updating badge:", err);
     res.status(500).json({
       message: "Error updating badge",
-      error: err.message,
-    });
-  }
-};
-
-exports.delete = async (req, res) => {
-  try {
-    const deleted = await Badge.destroy({
-      where: { id: req.params.id },
-    });
-
-    if (deleted) {
-      res.json({ message: "Badge was deleted successfully!" });
-    } else {
-      res.status(404).json({
-        message: `Cannot find badge with id = ${req.params.id}.`,
-      });
-    }
-  } catch (err) {
-    console.error("Error deleting badge:", err);
-    res.status(500).json({
-      message: "Could not delete badge",
       error: err.message,
     });
   }

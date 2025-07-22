@@ -26,6 +26,14 @@ const Reward = SequelizeInstance.define("reward", {
   imageName: {
     type: Sequelize.STRING(255),
   },
+  quantityAvaliable: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  status: {
+    type: Sequelize.ENUM("active", "inactive"),
+    defaultValue: "active",
+  }
 });
 
 export default Reward;

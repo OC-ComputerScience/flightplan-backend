@@ -112,6 +112,14 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery) => {
     ],
   });
 
+exports.findAllActiveTasks = async () => {
+  return await Task.findAll({
+    where: {
+      status: "active",
+    },
+  });
+};
+
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );
@@ -145,10 +153,6 @@ exports.updateTask = async (taskData, taskId) => {
   });
 };
 
-exports.deleteTask = async (taskId) => {
-  return await Task.destroy({ where: { id: taskId } });
-};
-
 exports.addMajor = async (taskId, majorId) => {
   let taskMajor = {
     taskId: taskId,
@@ -159,7 +163,7 @@ exports.addMajor = async (taskId, majorId) => {
 };
 
 exports.removeMajor = async (taskId, majorId) => {
-  console.log("Removing major:", majorId, "from task:", taskId);
+  
   const result = await TaskMajor.destroy({
     where: {
       taskId: taskId,
@@ -183,7 +187,7 @@ exports.addStrength = async (taskId, strengthId) => {
 };
 
 exports.removeStrength = async (taskId, strengthId) => {
-  console.log("Removing strength:", strengthId, "from task:", taskId);
+
   const result = await TaskStrength.destroy({
     where: {
       taskId: taskId,
@@ -208,6 +212,10 @@ exports.getSchedulingTypes = () => {
 exports.getSubmissionTypes = () => {
   return Task.getAttributes().submissionType.values;
 };
+
+exports.getStatusTypes = () => {
+  return Task.getAttributes().status.values; 
+}
 
 export default exports;
 

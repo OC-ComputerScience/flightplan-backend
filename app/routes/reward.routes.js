@@ -15,8 +15,17 @@ router.get("/", [authenticate], reward.findAll);
 // Retrieve a single Reward with id
 router.get("/:id", [authenticate], reward.findOne);
 
-// Retrieve all rewards earned by a student
+// Retrieve all rewards for a student
 router.get("/student/:id", [authenticate], reward.findAllRewardsForStudent);
+
+// Retrieve all active rewards for a student
+router.get("/student/:id/active", [authenticate], reward.findAllActiveRewardsForStudent);
+
+// Retrieve all active rewards
+router.get("/active", [authenticate], reward.findAllActiveRewards);
+
+// Retrieve all inactive rewards
+router.get("/inactive", [authenticate], reward.findAllInactiveRewards);
 
 // Update a Reward with id
 router.put("/:id", [authenticate, isAdmin], reward.update);
@@ -24,8 +33,9 @@ router.put("/:id", [authenticate, isAdmin], reward.update);
 router.post("/upload", [authenticate, isAdmin], reward.uploadImage);
 
 router.get("/image/:fileName", [authenticate, isAdmin], reward.getImageForName);
-// Delete a Reward with id
-router.delete("/:id", [authenticate, isAdmin], reward.delete);
+
+// Retrieve all status types
+router.get("/types/statusTypes", [authenticate], reward.getStatusTypes);
 
 router.delete(
   "/image/:fileName",

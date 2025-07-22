@@ -78,6 +78,40 @@ exports.findAllRewardsForStudent = async (studentId) => {
   return getFilesForRewards(response);
 };
 
+exports.findAllActiveRewardsForStudent = async (studentId) => {
+  const response = await Reward.findAll({
+    where: {
+      status: "active",
+    },
+    include: {
+      model: Student,
+      where: {
+        id: studentId,
+      },
+      required: true,
+    },
+  });
+  return getFilesForRewards(response);
+};
+
+exports.findAllActiveRewards = async () => {
+  const response = await Reward.findAll({
+    where: {
+      status: "active",
+    },
+  });
+  return getFilesForRewards(response);
+};
+
+exports.findAllInactiveRewards = async () => {
+  const response = await Reward.findAll({
+    where: {
+      status: "inactive",
+    },
+  });
+  return getFilesForRewards(response);
+};
+
 exports.findOneReward = async (rewardId) => {
   const response = await Reward.findByPk(rewardId);
   return readFileForReward(response);
@@ -95,10 +129,6 @@ exports.updateReward = async (rewardData, rewardId) => {
   return await Reward.update(rewardData, { where: { id: rewardId } });
 };
 
-exports.deleteReward = async (rewardId) => {
-  return await Reward.destroy({ where: { id: rewardId } });
-};
-
 exports.redeemReward = async (rewardId, studentId, userId) => {
   const t = await SequelizeInstance.transaction();
   try {
@@ -111,6 +141,13 @@ exports.redeemReward = async (rewardId, studentId, userId) => {
         attributes: ["id"],
       },
     });
+
+    if (reward.quantityAvaliable !== null && reward.quantityAvaliable > 0) {
+      await Reward.update(
+        { quantityAvaliable: reward.quantityAvaliable - 1 },
+        { where: { id: rewardId }, transaction: t }
+      );
+    }
 
     await Student.update(
       {
@@ -147,6 +184,10 @@ exports.redeemReward = async (rewardId, studentId, userId) => {
     await t.rollback();
     throw err;
   }
+};
+
+exports.getStatusTypes = () => {
+  return Reward.getAttributes().status.values;
 };
 
 const getFilesForRewards = (rewards) =>

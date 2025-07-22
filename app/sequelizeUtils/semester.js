@@ -28,4 +28,15 @@ exports.getCurrentSemester = async () => {
   });
 };
 
+exports.getNextSemester = async () => {
+  return await Semester.findOne({
+    where:{
+      startDate: {
+        [Op.gt]: new Date(),
+      },
+    },
+    order: [['startDate', 'ASC']],
+  })
+}
+
 export default exports;
