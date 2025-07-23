@@ -45,16 +45,6 @@ exports.create = async (submissionData) => {
       ],
       transaction: t,
     });
-
-    await Notification.create(
-      {
-        userId: student.user.id,
-        header: "New submission for flight plan item",
-        description:
-          "You have been requested to review a new submission for a flight plan item",
-      },
-      { transaction: t },
-    );
     await t.commit();
     return submission;
   } catch (err) {
@@ -98,16 +88,6 @@ exports.bulkCreate = async (submissionData) => {
       ],
       transaction: t,
     });
-
-    await Notification.create(
-      {
-        userId: student.user.id,
-        header: "New submission for flight plan item",
-        description:
-          "You have been requested to review a new submission for a flight plan item",
-      },
-      { transaction: t },
-    );
     await t.commit();
     return submissions;
   } catch (err) {
