@@ -151,7 +151,7 @@ exports.create = async (badgeData) => {
   const t = await sequelize.transaction();
   try {
     const badge = await Badge.create(badgeData, { transaction: t });
-    if (badgeData.ruleType === "Task and Experience Defined") {
+    if (badgeData.ruleType === "Experiences and Tasks") {
       /* eslint-disable no-undef */
       await Promise.all(
         badgeData.tasks.map(async (data) => {
@@ -181,6 +181,10 @@ exports.create = async (badgeData) => {
       await t.commit();
       return badge;
     }
+    else {
+      await t.commit();
+      return badge;
+    }
   } catch (error) {
     await t.rollback();
     throw error;
@@ -189,7 +193,7 @@ exports.create = async (badgeData) => {
 
 exports.update = async (badgeData, badgeId) => {
   await BadExpTask.destroy({ where: { badgeId: badgeId } });
-  if (badgeData.ruleType === "Task and Experience Defined") {
+  if (badgeData.ruleType === "Experiences and Tasks") {
     badgeData.tasks.forEach(async (data) => {
       await BadExpTask.create({
         badgeId: badgeId,

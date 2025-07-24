@@ -9,6 +9,10 @@ const BadExpTask = db.badExpTask;
 const BadgeAwarded = db.badgeAwarded;
 const Notification = db.notification;
 const Student = db.student;
+
+import FlightPlanUtils from "../sequelizeUtils/flightPlan.js";
+import FlightPlanItemUtils from "../sequelizeUtils/flightPlanItem.js";
+
 import { Op } from "sequelize";
 const kickOffBadgeAwarding = async (flightPlanItemId) => {
   try {
@@ -30,19 +34,26 @@ const kickOffBadgeAwarding = async (flightPlanItemId) => {
       await findAllCompletedFlightPlanItemsForStudent(student.id);
 
     // Get relevant badges based on flight plan item type
-    const badges = await getRelevantBadges(flightPlanItem);
-    const nonCompletedBadges = filterNonCompletedBadges(
+    const badges = await getRelevantBadges(flightPlanItem, student);
+    let nonCompletedBadges = filterNonCompletedBadges(
       badges,
       completedBadges,
     );
 
+    const uniqueNonCompletedBadges = nonCompletedBadges.reduce((uniqueBadges, currentBadge) => {
+      if (!uniqueBadges.some((badge) => badge.id === currentBadge.id)){
+        uniqueBadges.push(currentBadge);
+      }
+      return uniqueBadges;
+    }, []);
+
     // Process each non-completed badge
-    for (const badge of nonCompletedBadges) {
+    for (const badge of uniqueNonCompletedBadges) {
       await processBadgeCompletion(
         badge,
         completedFlightPlanItems,
         user,
-        student.id,
+        student,
       );
     }
 
@@ -84,19 +95,36 @@ const findAllCompletedFlightPlanItemsForStudent = async (studentId) => {
 };
 
 // Helper Functions
-const getRelevantBadges = async (flightPlanItem) => {
+const getRelevantBadges = async (flightPlanItem, student) => {
   const { taskId, experienceId } = flightPlanItem;
+  let badges = [];
 
   if (taskId) {
-    return await findBadgesWithTaskOrExperienceRequirement(taskId, "task");
+    badges = [...badges, ...(await findBadgesWithTaskOrExperienceRequirement(taskId, "task"))];
   } else if (experienceId) {
-    return await findBadgesWithTaskOrExperienceRequirement(
+    badges = [...badges, ...(await findBadgesWithTaskOrExperienceRequirement(
       experienceId,
       "experience",
-    );
+    ))];
   }
 
-  return [];
+  const semestersFromGrad = student.flightPlans.find((flightPlan) => flightPlan.id === flightPlanItem.flightPlanId).semestersFromGrad;
+  const yearsFromGrad = Math.floor((semestersFromGrad + 1) / 2)
+  const yearBadges = await Badge.findAll({
+    where: {
+      yearsFromGrad: yearsFromGrad
+    }
+  });
+
+  const badgeQuantityBadges = await Badge.findAll({
+    where: {
+      ruleType: 'Number of Badges'
+    }
+  })
+
+  badges = [...badges, ...yearBadges, ...badgeQuantityBadges]
+
+  return badges;
 };
 
 const findBadgesWithTaskOrExperienceRequirement = async (id, type) => {
@@ -130,22 +158,23 @@ const findBadgesWithTaskOrExperienceRequirement = async (id, type) => {
 };
 
 const filterNonCompletedBadges = (badges, completedBadges) => {
-  return badges.filter((badge) => !completedBadges.includes(badge));
+  return badges.filter((badge) => !completedBadges.find((completedBadge) => badge.id === completedBadge.id));
 };
 
 const processBadgeCompletion = async (
   badge,
   completedFlightPlanItems,
   user,
-  studentId,
+  student,
 ) => {
   const isCompleted = await checkBadgeCompletion(
     badge,
-    completedFlightPlanItems,
+    completedFlightPlanItems, 
+    student
   );
 
   if (isCompleted) {
-    await awardBadge(badge, studentId);
+    await awardBadge(badge, student.id);
     await createBadgeNotification(badge, user);
   }
 };
@@ -167,18 +196,43 @@ const createBadgeNotification = async (badge, user) => {
   });
 };
 
-const checkBadgeCompletion = async (badge, completedFlightPlanItems) => {
-  if (badge.ruleType === "Task and Experience Defined") {
-    return checkTaskAndExperienceDefinedBadgeCompletion(
+const checkBadgeCompletion = async (badge, completedFlightPlanItems, student) => {
+  if (badge.ruleType === "Experiences and Tasks") {
+    return checkExperiencesAndTasksCompletion(
       badge,
       completedFlightPlanItems,
+    );
+  } else if (badge.ruleType === "All Tasks and Experiences for Year") {
+    return checkAllTasksAndExperiencesForYearCompletion(
+      badge,
+      student,
+    );
+  } else if (badge.ruleType === "All Tasks for Year") {
+    return checkAllTasksForYearCompletion(
+      badge,
+      student,
+    );
+  } else if (badge.ruleType === "Number of Tasks for Year") {
+    return checkNumberOfTasksForYearCompletion(
+      badge,
+      student,
+    );
+  } else if (badge.ruleType === "Number of Badges") {
+    return checkNumberOfBadgesCompletion(
+      badge,
+      student,
+    );
+  } else if (badge.ruleType === "Number of Tasks or Experiences for year") {
+    return checkNumberOfTasksOrExperiencesForYearCompletion(
+      badge,
+      student,
     );
   }
 
   return false;
 };
 
-const checkTaskAndExperienceDefinedBadgeCompletion = async (
+const checkExperiencesAndTasksCompletion = async (
   badge,
   completedFlightPlanItems,
 ) => {
@@ -220,6 +274,75 @@ const getCountOfFlightPlanItemTaskOrExperience = (
       flightPlanItem.experienceId === taskOrExperienceId
     );
   }).length;
+};
+
+const checkAllTasksAndExperiencesForYearCompletion = async (
+  badge,
+  student
+) => {
+  let flightPlanItems = [];
+
+  const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
+  const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
+  if (!FlightPlan2) return false;
+  if (FlightPlan1?.id)
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems;
+  flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems];
+  return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
+};
+
+const checkAllTasksForYearCompletion = async (
+  badge,
+  student,
+) => {
+  let flightPlanItems = [];
+
+  const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
+  const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
+  if (!FlightPlan2) return false;
+  if (FlightPlan1?.id)
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task");
+  flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task")];
+  return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
+};
+
+const checkNumberOfTasksForYearCompletion = async (
+  badge,
+  student
+) => {
+  let flightPlanItems = [];
+
+  const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
+  const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
+
+  if (FlightPlan1?.id)
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task" && item.status === "Complete");
+  if (FlightPlan2?.id)
+    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => item.flightPlanItemType === "Task" && item.status === "Complete")];
+  return flightPlanItems.length >= badge.completionQuantityOne;
+};
+
+const checkNumberOfBadgesCompletion = async (
+  badge,
+  student,
+) => {
+  const completedBadges = await findAllBadgesForStudent(student.id);
+  return completedBadges.length >= badge.completionQuantityOne;
+};
+
+const checkNumberOfTasksOrExperiencesForYearCompletion = async (
+  badge,
+  student,
+) => {
+  let flightPlanItems = [];
+
+  const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
+  const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
+  if (FlightPlan1?.id)
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete");
+  if (FlightPlan2?.id)
+    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete")];
+  return flightPlanItems.length >= badge.completionQuantityOne;
 };
 
 export default kickOffBadgeAwarding;
