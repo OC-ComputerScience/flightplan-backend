@@ -225,10 +225,6 @@ exports.getStatusTypes = () => {
   return Task.getAttributes().status.values; 
 }
 
-export default exports;
-
-// Non default exports
-
 export const getAllTasksGreaterThanSemestersFromGrad = async (
   semestersFromGrad,
 ) => {
@@ -240,3 +236,7 @@ export const getAllTasksGreaterThanSemestersFromGrad = async (
     },
   });
 };
+
+export default exports;
+
+// Non default exports
