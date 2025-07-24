@@ -5,7 +5,7 @@ import { Router } from "express";
 const router = Router();
 
 // Create a new Notification
-router.post("/", [authenticate, isAdmin], notification.create);
+router.post("/", [authenticate], notification.create);
 
 // Retrieve all Notification
 router.get("/", [authenticate], notification.findAll);
