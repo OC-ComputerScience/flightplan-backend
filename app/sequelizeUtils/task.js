@@ -95,6 +95,22 @@ exports.findAllTasks = async (
   return { tasks, count: totalPages };
 };
 
+exports.findAllActiveTasks = async () => {
+  return await Task.findAll({
+    where: {
+      status: "active",
+    },
+  });
+};
+
+exports.findAllInactiveTasks = async () => {
+  return await Task.findAll({
+    where: {
+      status: "inactive",
+    },
+  });
+};
+
 exports.findAllOptionalForStudentId = async (studentId, searchQuery) => {
   const flightPlans = await FlightPlan.findAll({
     where: {
@@ -111,22 +127,6 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery) => {
       },
     ],
   });
-
-exports.findAllActiveTasks = async () => {
-  return await Task.findAll({
-    where: {
-      status: "active",
-    },
-  });
-};
-
-exports.findAllInactiveTasks = async () => {
-  return await Task.findAll({
-    where: {
-      status: "inactive",
-    },
-  });
-};
 
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,

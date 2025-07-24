@@ -95,8 +95,12 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
 const getAllTasksGreaterThanSemestersFromGrad = async (semestersFromGrad) => {
   const allTasks = await Task.findAll({
     include: [{ model: Strength }, { model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      status: "active", // <-- Only include active tasks
+    }
   });
-  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad && task.status === "active");
+  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad && task.status == "active");
 };
 
 const processNonSpecificTasks = (
@@ -260,10 +264,14 @@ const getAllExperiencesGreaterThanSemestersFromGrad = async (
 ) => {
   const allExperiences = await Experience.findAll({
     include: [{ model: Strength }, { model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      status: "active", // <-- Only include active experiences
+    },
   });
 
   return allExperiences.filter(
-    (experience) => experience.semestersFromGrad >= semestersFromGrad && experience.status === "active",
+    (experience) => experience.semestersFromGrad >= semestersFromGrad && experience.status == "active",
   );
 };
 
