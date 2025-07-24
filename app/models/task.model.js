@@ -55,6 +55,9 @@ const Task = SequelizeInstance.define("task", {
   instructions: {
     type: Sequelize.STRING,
   },
+  instructionsLinkDescription: {
+    type: Sequelize.STRING
+  },
   instructionsLink: {
     type: Sequelize.STRING, 
   },
