@@ -94,13 +94,59 @@ exports.findAllActiveRewardsForStudent = async (studentId) => {
   return getFilesForRewards(response);
 };
 
-exports.findAllActiveRewards = async () => {
-  const response = await Reward.findAll({
-    where: {
-      status: "active",
-    },
-  });
-  return getFilesForRewards(response);
+exports.findAllActiveRewards = async (
+  page = null,
+  pageSize = null,
+  searchQuery = "",
+  filters = {},
+) => {
+  const whereCondition = { status: "active", };
+
+  if (searchQuery) {
+    whereCondition.name = { [Op.like]: `%${searchQuery}%` };
+  }
+
+  if (filters.redemptionType) {
+    whereCondition.redemptionType = {
+      [Op.like]: `%${filters.redemptionType}%`,
+    };
+  }
+
+  let order = [];
+
+  if (filters.sortAttribute && filters.sortDirection) {
+    // Default to ascending order if direction is not provided
+    const direction =
+      filters.sortDirection.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    order = [[filters.sortAttribute, direction]];
+  }
+
+  const queryOptions = {
+    where: whereCondition,
+    order,
+  };
+
+  // Only add pagination if both page and pageSize are provided
+  if (page !== null && pageSize !== null) {
+    const offset = (parseInt(page, 10) - 1) * parseInt(pageSize, 10);
+    const limit = parseInt(pageSize, 10);
+    queryOptions.offset = offset;
+    queryOptions.limit = limit;
+  }
+
+  let rewards = await Reward.findAll(queryOptions);
+  rewards = getFilesForRewards(rewards);
+
+  // Only count total pages if pagination is being used
+  if (page !== null && pageSize !== null) {
+    const count = await Reward.count({
+      where: whereCondition,
+    });
+    const totalPages = Math.ceil(count / parseInt(pageSize, 10));
+    return { rewards, count: totalPages };
+  }
+
+  return { rewards };
 };
 
 exports.findAllInactiveRewards = async () => {

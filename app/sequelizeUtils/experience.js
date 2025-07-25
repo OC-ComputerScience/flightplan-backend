@@ -71,6 +71,14 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery = "") => {
     });
   };
 
+  exports.findAllInactiveExperiences = async () => {
+    return await Experience.findAll({
+      where: {
+        status: "inactive",
+      },
+    });
+  };
+
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );

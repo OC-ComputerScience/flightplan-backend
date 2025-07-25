@@ -1,4 +1,5 @@
 import db from "../models/index.js";
+import { Op } from "sequelize";
 const Task = db.task;
 const Experience = db.experience;
 const Student = db.student;
@@ -68,6 +69,7 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
     newFlightPlan.semestersFromGrad,
   );
 
+  // Filter tasks that aren't specific to a student's strengths or majors
   const nonSpecificTasks = allTasks.filter(
     (task) => task.strengths.length == 0 && task.majors.length == 0,
   );
@@ -77,6 +79,7 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
     nonSpecificTasks,
   );
 
+  // Filter tasks that are specific to a student's strengths or majors
   const specificTasks = allTasks.filter(
     (task) => task.strengths.length > 0 || task.majors.length > 0,
   );
@@ -93,8 +96,12 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
 const getAllTasksGreaterThanSemestersFromGrad = async (semestersFromGrad) => {
   const allTasks = await Task.findAll({
     include: [{ model: Strength }, { model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      status: "active", // <-- Only include active tasks
+    }
   });
-  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad);
+  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad && task.status == "active");
 };
 
 const processNonSpecificTasks = (
@@ -258,10 +265,14 @@ const getAllExperiencesGreaterThanSemestersFromGrad = async (
 ) => {
   const allExperiences = await Experience.findAll({
     include: [{ model: Strength }, { model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      status: "active", // <-- Only include active experiences
+    },
   });
 
   return allExperiences.filter(
-    (experience) => experience.semestersFromGrad >= semestersFromGrad,
+    (experience) => experience.semestersFromGrad >= semestersFromGrad && experience.status == "active",
   );
 };
 

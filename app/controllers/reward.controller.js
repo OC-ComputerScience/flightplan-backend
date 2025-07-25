@@ -85,7 +85,20 @@ exports.findAllActiveRewardsForStudent = async (req, res) => {
 };
 
 exports.findAllActiveRewards = async (req, res) => {
-  await Reward.findAllActiveRewards()
+  const {
+    page,
+    pageSize,
+    searchQuery,
+    redemptionType,
+    sortAttribute,
+    sortDirection,
+  } = req.query;
+
+  await Reward.findAllActiveRewards(page, pageSize, searchQuery, {
+    redemptionType,
+    sortAttribute,
+    sortDirection,
+  })
     .then((data) => {
       res.send(data);
     })

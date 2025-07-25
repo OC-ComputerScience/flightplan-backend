@@ -13,6 +13,12 @@ router.post("/award", [authenticate, isAdmin], badgeAwarded.awardBadge);
 // Retrieve all Role
 router.get("/", [authenticate], badge.findAll);
 
+// Retrieve all active badges
+router.get("/active", [authenticate], badge.findAllActiveBadges);
+
+// Retrieve all inactive badges
+router.get("/inactive", [authenticate], badge.findAllInactiveBadges);
+
 // Retrieve a single Role with id
 router.get("/:id", [authenticate], badge.findOne);
 
@@ -24,12 +30,6 @@ router.get("/types/statusTypes", [authenticate], badge.getStatusTypes);
 
 // Retrieve all unviewed badges for a student
 router.get("/student/:id/unviewed", [authenticate], badge.getUnviewedBadges);
-
-// Retrieve all active badges
-router.get("/active", [authenticate], badge.findAllActiveBadges);
-
-// Retrieve all inactive badges
-router.get("/inactive", [authenticate], badge.findAllInactiveBadges);
 
 // View a badge
 router.put("/:id/view", [authenticate], badge.viewBadge);
