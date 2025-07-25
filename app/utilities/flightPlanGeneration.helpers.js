@@ -1,4 +1,5 @@
 import db from "../models/index.js";
+import { Op } from "sequelize";
 const Task = db.task;
 const Experience = db.experience;
 const Student = db.student;
