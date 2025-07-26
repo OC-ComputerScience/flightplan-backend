@@ -11,6 +11,10 @@ const Major = SequelizeInstance.define("major", {
     type: Sequelize.STRING(255),
     allowNull: false,
   },
+  OCMajorId: {
+    type: Sequelize.STRING(255),
+    allowNull: false,
+  },
 });
 
 export default Major;
