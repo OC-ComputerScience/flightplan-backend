@@ -231,7 +231,7 @@ const checkBadgeCompletion = async (badge, completedFlightPlanItems, student) =>
       badge,
       student,
     );
-  } else if (badge.ruleType === "Number of Tasks or Experiences for year") {
+  } else if (badge.ruleType === "Number of Tasks or Experiences for Year") {
     return checkNumberOfTasksOrExperiencesForYearCompletion(
       badge,
       student,
