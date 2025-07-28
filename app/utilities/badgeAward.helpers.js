@@ -30,14 +30,23 @@ const kickOffBadgeAwarding = async (flightPlanItemId) => {
     });
     const user = await User.findByPk(student.userId);
     const completedBadges = await findAllBadgesForStudent(student.id);
+    const inactiveBadges = await Badge.findAll({
+      where: {
+        status: "inactive"
+      }
+    });
     const completedFlightPlanItems =
       await findAllCompletedFlightPlanItemsForStudent(student.id);
 
     // Get relevant badges based on flight plan item type
     const badges = await getRelevantBadges(flightPlanItem, student);
-    let nonCompletedBadges = filterNonCompletedBadges(
+    let nonCompletedBadges = filterBadges(
       badges,
       completedBadges,
+    );
+    nonCompletedBadges = filterBadges(
+      badges,
+      inactiveBadges,
     );
 
     const uniqueNonCompletedBadges = nonCompletedBadges.reduce((uniqueBadges, currentBadge) => {
@@ -157,8 +166,8 @@ const findBadgesWithTaskOrExperienceRequirement = async (id, type) => {
   return [];
 };
 
-const filterNonCompletedBadges = (badges, completedBadges) => {
-  return badges.filter((badge) => !completedBadges.find((completedBadge) => badge.id === completedBadge.id));
+const filterBadges = (badges, badgesToFilterOut) => {
+  return badges.filter((badge) => !badgesToFilterOut.find((completedBadge) => badge.id === completedBadge.id));
 };
 
 const processBadgeCompletion = async (
@@ -288,6 +297,7 @@ const checkAllTasksAndExperiencesForYearCompletion = async (
   if (FlightPlan1?.id)
     flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems;
   flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems];
+  flightPlanItems = flightPlanItems.filter((flightPlanItem) => !flightPlanItem.optional)
   return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
 };
 
@@ -303,6 +313,7 @@ const checkAllTasksForYearCompletion = async (
   if (FlightPlan1?.id)
     flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task");
   flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task")];
+  flightPlanItems = flightPlanItems.filter((flightPlanItem) => !flightPlanItem.optional)
   return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
 };
 
