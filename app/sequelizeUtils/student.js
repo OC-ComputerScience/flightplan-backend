@@ -138,9 +138,15 @@ exports.findStudentForFlightPlanId = async (flightPlanId) => {
 };
 
 exports.checkStudentSemesterFromGraduation = async (studentId) => {
+  if (!studentId) {
+    throw Error("Unable to check semester for student with invalid id");
+  }
   let student = await Student.findByPk(studentId);
 
   const flightPlan = await FlightPlanUtils.getFlightPlanForStudentAndSemester(studentId, student.semestersFromGrad);
+  if (!flightPlan?.id) {
+    throw Error("Student has no Flight Plan for their current semester");
+  }
   if (flightPlan) {
     const semester = await Semester.findByPk(flightPlan.semesterId);
     if (semester.endDate < new Date())
