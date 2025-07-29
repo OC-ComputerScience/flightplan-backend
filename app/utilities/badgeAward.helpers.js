@@ -350,9 +350,9 @@ const checkNumberOfTasksOrExperiencesForYearCompletion = async (
   const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
   const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
   if (FlightPlan1?.id)
-    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete");
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan1.id, 1, 1000)).flightPlanItems.filter((item) => item.status === "Complete");
   if (FlightPlan2?.id)
-    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete")];
+    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => item.status === "Complete")];
   return flightPlanItems.length >= badge.completionQuantityOne;
 };
 
