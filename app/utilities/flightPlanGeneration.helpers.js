@@ -6,6 +6,7 @@ const Student = db.student;
 const Major = db.major;
 const Strength = db.strength;
 const FlightPlan = db.flightPlan;
+const FlightPlanItem = db.flightPlanItem;
 
 export const getFlightPlanItemsForNewFlightPlan = async (
   studentId,
@@ -13,7 +14,7 @@ export const getFlightPlanItemsForNewFlightPlan = async (
 ) => {
   const student = await getStudentWithGenerationInfo(studentId);
 
-  const completedItems = getAllCompletedFlightPlanItemsForStudent(student);
+  const completedItems = await getAllCompletedFlightPlanItemsForStudent(student);
 
   /* eslint-disable no-undef */
   const [taskItems, experienceItems] = await Promise.all([
@@ -46,15 +47,15 @@ const getStudentWithGenerationInfo = async (studentId) => {
   });
 };
 
-const getAllCompletedFlightPlanItemsForStudent = (student) => {
-  let completedFlightPlanItems = [];
-
-  student.flightPlans?.forEach((flightPlan) => {
-    let newItems =
-      flightPlan.flightPlanItems?.filter(
-        ({ status }) => status === "Complete",
-      ) || [];
-    completedFlightPlanItems = [...completedFlightPlanItems, ...newItems];
+const getAllCompletedFlightPlanItemsForStudent = async (student) => {
+  const flightPlans = student.flightPlans
+  const completedFlightPlanItems = await FlightPlanItem.findAll({
+    where: {
+      flightPlanId: {
+        [Op.in]: flightPlans.map((flightPlan) => flightPlan.id),
+      },
+      status: "Complete",
+    },
   });
 
   return completedFlightPlanItems;
