@@ -43,6 +43,9 @@ const Experience = SequelizeInstance.define("experience", {
   semestersFromGrad: {
     type: Sequelize.INTEGER,
   },
+  semesterEnd: {
+    type: Sequelize.INTEGER,
+  },
   description: {
     type: Sequelize.STRING(2000),
   },

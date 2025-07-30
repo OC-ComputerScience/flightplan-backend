@@ -65,7 +65,7 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
     .filter(({ flightPlanItemType }) => flightPlanItemType === "Task")
     .map(({ taskId, task }) => ({ taskId, task }));
 
-  const allTasks = await getAllTasksGreaterThanSemestersFromGrad(
+  const allTasks = await getAllActiveSemesterValidTasks(
     newFlightPlan.semestersFromGrad,
   );
 
@@ -93,11 +93,15 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
   return [...finalNonSpecificTasks, ...finalSpecificTasks];
 };
 
-const getAllTasksGreaterThanSemestersFromGrad = async (semestersFromGrad) => {
+const getAllActiveSemesterValidTasks = async (semestersFromGrad) => {
   const allTasks = await Task.findAll({
     include: [{ model: Strength }, { model: Major }],
     where: {
       semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      [Op.or]: [
+        { semesterEnd: { [Op.lte]: semestersFromGrad } },
+        { semesterEnd: null }
+      ],
       status: "active", // <-- Only include active tasks
     }
   });
@@ -230,7 +234,7 @@ const getExperienceItems = async (
     .filter(({ flightPlanItemType }) => flightPlanItemType === "Experience")
     .map(({ experience, experienceId }) => ({ experience, experienceId }));
 
-  let allExperiences = await getAllExperiencesGreaterThanSemestersFromGrad(
+  let allExperiences = await getAllActiveSemesterValidExperiences(
     newFlightPlan.semestersFromGrad,
   );
 
@@ -260,13 +264,17 @@ const getExperienceItems = async (
   return [...finalNonSpecificExperiences, ...finalSpecificExperiences];
 };
 
-const getAllExperiencesGreaterThanSemestersFromGrad = async (
+const getAllActiveSemesterValidExperiences = async (
   semestersFromGrad,
 ) => {
   const allExperiences = await Experience.findAll({
     include: [{ model: Strength }, { model: Major }],
     where: {
       semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      [Op.or]: [
+        { semesterEnd: { [Op.lte]: semestersFromGrad } },
+        { semesterEnd: null }
+      ],
       status: "active", // <-- Only include active experiences
     },
   });

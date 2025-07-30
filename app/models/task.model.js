@@ -45,6 +45,9 @@ const Task = SequelizeInstance.define("task", {
   semestersFromGrad: {
     type: Sequelize.INTEGER,
   },
+  semesterEnd: {
+    type: Sequelize.INTEGER,
+  },
   submissionType: {
     type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Approved", "Auto Complete - Major", "Auto Complete - LinkedIn", "Auto Complete - Handshake", "Auto-Complete - Strengths"),
     defaultValue: "Manual Review",
