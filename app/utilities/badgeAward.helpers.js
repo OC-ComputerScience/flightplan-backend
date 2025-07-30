@@ -45,7 +45,7 @@ const kickOffBadgeAwarding = async (flightPlanItemId) => {
       completedBadges,
     );
     nonCompletedBadges = filterBadges(
-      badges,
+      nonCompletedBadges,
       inactiveBadges,
     );
 
@@ -167,7 +167,7 @@ const findBadgesWithTaskOrExperienceRequirement = async (id, type) => {
 };
 
 const filterBadges = (badges, badgesToFilterOut) => {
-  return badges.filter((badge) => !badgesToFilterOut.find((completedBadge) => badge.id === completedBadge.id));
+  return badges.filter((badge) => !badgesToFilterOut.find((badgeToFilter) => badge.id === badgeToFilter.id));
 };
 
 const processBadgeCompletion = async (
