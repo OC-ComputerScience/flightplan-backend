@@ -45,7 +45,7 @@ const kickOffBadgeAwarding = async (flightPlanItemId) => {
       completedBadges,
     );
     nonCompletedBadges = filterBadges(
-      badges,
+      nonCompletedBadges,
       inactiveBadges,
     );
 
@@ -167,7 +167,7 @@ const findBadgesWithTaskOrExperienceRequirement = async (id, type) => {
 };
 
 const filterBadges = (badges, badgesToFilterOut) => {
-  return badges.filter((badge) => !badgesToFilterOut.find((completedBadge) => badge.id === completedBadge.id));
+  return badges.filter((badge) => !badgesToFilterOut.find((badgeToFilter) => badge.id === badgeToFilter.id));
 };
 
 const processBadgeCompletion = async (
@@ -295,7 +295,7 @@ const checkAllTasksAndExperiencesForYearCompletion = async (
   const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
   if (!FlightPlan2) return false;
   if (FlightPlan1?.id)
-    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems;
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan1.id, 1, 1000)).flightPlanItems;
   flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems];
   flightPlanItems = flightPlanItems.filter((flightPlanItem) => !flightPlanItem.optional)
   return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
@@ -311,7 +311,7 @@ const checkAllTasksForYearCompletion = async (
   const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
   if (!FlightPlan2) return false;
   if (FlightPlan1?.id)
-    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task");
+  flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan1.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task");
   flightPlanItems = [...flightPlanItems, ...(await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task")];
   flightPlanItems = flightPlanItems.filter((flightPlanItem) => !flightPlanItem.optional)
   return flightPlanItems.every((flightPlanItem) => { return flightPlanItem.status === "Complete" })
@@ -327,7 +327,7 @@ const checkNumberOfTasksForYearCompletion = async (
   const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
 
   if (FlightPlan1?.id)
-    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task" && item.status === "Complete");
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan1.id, 1, 1000)).flightPlanItems.filter((item) => item.flightPlanItemType === "Task" && item.status === "Complete");
   if (FlightPlan2?.id)
     flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => item.flightPlanItemType === "Task" && item.status === "Complete")];
   return flightPlanItems.length >= badge.completionQuantityOne;
@@ -350,9 +350,9 @@ const checkNumberOfTasksOrExperiencesForYearCompletion = async (
   const FlightPlan1 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, badge.yearsFromGrad * 2);
   const FlightPlan2 = await FlightPlanUtils.getFlightPlanForStudentAndSemester(student.id, (badge.yearsFromGrad * 2) - 1);
   if (FlightPlan1?.id)
-    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems.filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete");
+    flightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan1.id, 1, 1000)).flightPlanItems.filter((item) => item.status === "Complete");
   if (FlightPlan2?.id)
-    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => (item.flightPlanItemType === "Task" || item.flightPlanItemType === "Experience") && item.status === "Complete")];
+    flightPlanItems = [...flightPlanItems, ...((await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(FlightPlan2.id, 1, 1000)).flightPlanItems).filter((item) => item.status === "Complete")];
   return flightPlanItems.length >= badge.completionQuantityOne;
 };
 
