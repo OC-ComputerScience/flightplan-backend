@@ -519,13 +519,25 @@ exports.markAttendance = async (eventId, studentIds) => {
         if (!experience) continue;
 
         if (eventStudent.attended) {
-          if (item.status !== "Complete") {
+          if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
             });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
+          }
+          else if (item.status !== "Complete " && experience.submissionType === "Attendance - Reflection") {
+            await item.update({
+              status: "Awaiting Reflection",
+              pointsEarned: 0,
+            });
+          }
+          else { 
+            console.error("Was not able to update item status for experience: ", experience.name);
+            console.log("Item status: ", item.status);
+            console.log("Item submission type: ", experience.submissionType);
+
           }
         } else {
           if (item.status === "Complete") {

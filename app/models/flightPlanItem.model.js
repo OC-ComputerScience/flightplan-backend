@@ -18,6 +18,7 @@ const FlightPlanItem = SequelizeInstance.define(
         "Incomplete",
         "Pending",
         "Pending Registration",
+        "Awaiting Reflection",
         "Registered",
         "Rejected",
       ),
