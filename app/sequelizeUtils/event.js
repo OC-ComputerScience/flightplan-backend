@@ -527,11 +527,19 @@ exports.markAttendance = async (eventId, studentIds) => {
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
           }
-          else if (item.status !== "Complete " && experience.submissionType === "Attendance - Reflection") {
+          else if (item.status !== "Complete" && item.status !== "Pending Attendance" && experience.submissionType === "Attendance - Reflection") {
             await item.update({
               status: "Awaiting Reflection",
               pointsEarned: 0,
             });
+          }
+          else if (item.status == "Pending Attendance" && experience.submissionType === "Attendance - Reflection") {
+            await item.update({
+              status: "Complete",
+              pointsEarned: experience.points,
+            });
+            await studentServices.updatePoints(studentId, experience.points);
+            await kickOffBadgeAwarding(item.id);
           }
           else { 
             console.error("Was not able to update item status for experience: ", experience.name);
