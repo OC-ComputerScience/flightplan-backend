@@ -30,6 +30,10 @@ const Reward = SequelizeInstance.define("reward", {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
+  maximumRedemptionsPerUser: {
+    type: Sequelize.INTEGER,
+    allowNull: true
+  },
   status: {
     type: Sequelize.ENUM("active", "inactive"),
     defaultValue: "active",
