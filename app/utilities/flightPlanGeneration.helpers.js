@@ -82,13 +82,12 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
 
   // Filter tasks that are specific to a student's strengths or majors
   const specificTasks = allTasks.filter(
-    (task) => task.strengths.length > 0 || task.majors.length > 0,
+    (task) => hasCommonStrengthOrMajor(student, task),
   );
 
   const finalSpecificTasks = processSpecificTasks(
     completedTasks,
     specificTasks,
-    student,
   );
 
   return [...finalNonSpecificTasks, ...finalSpecificTasks];
@@ -148,16 +147,9 @@ const processNonSpecificTasks = (
 const processSpecificTasks = (
   completedTasks,
   specificTasks,
-  student,
   semestersFromGrad,
 ) => {
-  const relevantSpecificTasks = specificTasks.filter(
-    (task) =>
-      task.strengths.some((strength) => student.strengths.includes(strength)) ||
-      task.majors.some((major) => student.majors.includes(major)),
-  );
-
-  const oneTimeSpecificTasks = relevantSpecificTasks.filter(
+  const oneTimeSpecificTasks = specificTasks.filter(
     (task) => task.schedulingType === "one-time",
   );
 
@@ -167,11 +159,11 @@ const processSpecificTasks = (
     (task) => !completedTaskIds.includes(task.id),
   );
 
-  const everySemesterSpecificTasks = relevantSpecificTasks.filter(
+  const everySemesterSpecificTasks = specificTasks.filter(
     (task) => task.schedulingType === "every-semester",
   );
 
-  const everyOtherSemesterSpecificTasks = relevantSpecificTasks.filter(
+  const everyOtherSemesterSpecificTasks = specificTasks.filter(
     (task) => task.schedulingType === "every-other-semester",
   );
 
@@ -251,14 +243,12 @@ const getExperienceItems = async (
   );
 
   const specificExperiences = allExperiences.filter(
-    (experience) =>
-      experience.strengths.length > 0 || experience.majors.length > 0,
+    (experience) => hasCommonStrengthOrMajor(student, experience),
   );
 
   const finalSpecificExperiences = processSpecificExperiences(
     completedExperiences,
     specificExperiences,
-    student,
     semestersFromGrad,
   );
 
@@ -327,17 +317,9 @@ const processNonSpecificExperiences = (
 const processSpecificExperiences = (
   completedExperiences,
   specificExperiences,
-  student,
   semestersFromGrad,
 ) => {
-  const relevantSpecificExperiences = specificExperiences.filter(
-    (experience) =>
-      experience.strengths.some((strength) =>
-        student.strengths.includes(strength),
-      ) || experience.majors.some((major) => student.majors.includes(major)),
-  );
-
-  const oneTimeSpecificExperiences = relevantSpecificExperiences.filter(
+  const oneTimeSpecificExperiences = specificExperiences.filter(
     (experience) => experience.schedulingType === "one-time",
   );
 
@@ -350,12 +332,12 @@ const processSpecificExperiences = (
       (experience) => !completedExperienceIds.includes(experience.id),
     );
 
-  const everySemesterSpecificExperiences = relevantSpecificExperiences.filter(
+  const everySemesterSpecificExperiences = specificExperiences.filter(
     (experience) => experience.schedulingType === "every-semester",
   );
 
   const everyOtherSemesterSpecificExperiences =
-    relevantSpecificExperiences.filter(
+    specificExperiences.filter(
       (experience) => experience.schedulingType === "every-other-semester",
     );
 
@@ -409,4 +391,21 @@ const processEveryOtherSemesterExperiences = (
     });
 
   return uncompletedEveryOtherSemesterExperiences;
+};
+
+const hasCommonStrengthOrMajor = (
+  studentWithStrengthsAndMajors,
+  itemWithStrengthsAndMajors,
+) => {
+  const hasCommonStrength = itemWithStrengthsAndMajors.strengths.some((itemStrength) =>
+    studentWithStrengthsAndMajors.strengths.some(
+      (studentStrength) => itemStrength.id === studentStrength.id,
+    ),
+  );
+  const hasCommonMajor = itemWithStrengthsAndMajors.majors.some((itemMajor) =>
+    studentWithStrengthsAndMajors.majors.some(
+      (studentMajor) => itemMajor.id === studentMajor.id,
+    ),
+  );
+  return hasCommonStrength || hasCommonMajor;
 };
