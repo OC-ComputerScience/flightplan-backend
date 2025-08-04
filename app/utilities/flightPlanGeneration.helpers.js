@@ -58,6 +58,16 @@ const getAllCompletedFlightPlanItemsForStudent = async (student) => {
       },
       status: "Complete",
     },
+    include: [
+      {
+        model: Task,
+        as: "task",
+      },
+      {
+        model: Experience,
+        as: "experience",
+      },
+    ],
   });
 
   return completedFlightPlanItems;
