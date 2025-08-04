@@ -16,10 +16,12 @@ export const getFlightPlanItemsForNewFlightPlan = async (
 
   const completedItems = await getAllCompletedFlightPlanItemsForStudent(student);
 
+  const semestersFromGrad = newFlightPlan.semestersFromGrad;
+
   /* eslint-disable no-undef */
   const [taskItems, experienceItems] = await Promise.all([
-    getTaskItems(completedItems, newFlightPlan, student),
-    getExperienceItems(completedItems, newFlightPlan, student),
+    getTaskItems(completedItems, student, semestersFromGrad),
+    getExperienceItems(completedItems, student, semestersFromGrad),
   ]);
 
   const formatItem = (type, item) => ({
@@ -61,13 +63,13 @@ const getAllCompletedFlightPlanItemsForStudent = async (student) => {
   return completedFlightPlanItems;
 };
 
-const getTaskItems = async (completedItems, newFlightPlan, student) => {
+const getTaskItems = async (completedItems, student, semestersFromGrad) => {
   const completedTasks = completedItems
     .filter(({ flightPlanItemType }) => flightPlanItemType === "Task")
     .map(({ taskId, task }) => ({ taskId, task }));
 
   const allTasks = await getAllActiveSemesterValidTasks(
-    newFlightPlan.semestersFromGrad,
+    semestersFromGrad,
   );
 
   // Filter tasks that aren't specific to a student's strengths or majors
@@ -78,6 +80,7 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
   const finalNonSpecificTasks = processNonSpecificTasks(
     completedTasks,
     nonSpecificTasks,
+    semestersFromGrad,
   );
 
   // Filter tasks that are specific to a student's strengths or majors
@@ -88,6 +91,7 @@ const getTaskItems = async (completedItems, newFlightPlan, student) => {
   const finalSpecificTasks = processSpecificTasks(
     completedTasks,
     specificTasks,
+    semestersFromGrad,
   );
 
   return [...finalNonSpecificTasks, ...finalSpecificTasks];
@@ -219,7 +223,6 @@ const processEveryOtherSemesterTasks = (
 
 const getExperienceItems = async (
   completedItems,
-  newFlightPlan,
   student,
   semestersFromGrad,
 ) => {
@@ -228,7 +231,7 @@ const getExperienceItems = async (
     .map(({ experience, experienceId }) => ({ experience, experienceId }));
 
   let allExperiences = await getAllActiveSemesterValidExperiences(
-    newFlightPlan.semestersFromGrad,
+    semestersFromGrad,
   );
 
   const nonSpecificExperiences = allExperiences.filter(
