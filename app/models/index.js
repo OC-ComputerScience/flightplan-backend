@@ -371,9 +371,9 @@ db.flightPlan.hasOne(db.student, {
 db.student.hasMany(db.flightPlan);
 
 // Flight plan to Flight plan Item
-db.flightPlanItem.hasOne(db.flightPlan, {
+db.flightPlanItem.belongsTo(db.flightPlan, {
   as: "flightPlan",
-  foreignKey: { name: "id", allowNull: false },
+  foreignKey: { name: "flightPlanId", allowNull: false },
 });
 db.flightPlan.hasMany(db.flightPlanItem);
 
