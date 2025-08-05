@@ -7,6 +7,8 @@ const Strength = db.strength;
 const EventStudents = db.eventStudents;
 import studentServices from "../sequelizeUtils/student.js";
 import kickOffBadgeAwarding from "../utilities/badgeAward.helpers.js";
+import notificationServices from "../sequelizeUtils/notification.js";
+import userServices from "../sequelizeUtils/user.js";
 
 const exports = {};
 
@@ -524,6 +526,15 @@ exports.markAttendance = async (eventId, studentIds) => {
               status: "Complete",
               pointsEarned: experience.points,
             });
+            let studentId = await studentServices.findById(studentId);
+            let userId = await userServices.findById(studentId.userId);
+            await notificationServices.createNotification({      
+              header: `${experience.name} Flight Plan Item Completion`,
+              description: `You have received ${experience.points} points for completing ${experience.name}`,
+              read: false,
+              userId: userId,
+              sentBy: null
+            });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
           }
@@ -537,6 +548,15 @@ exports.markAttendance = async (eventId, studentIds) => {
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
+            });
+            let studentId = await studentServices.findById(studentId);
+            let userId = await userServices.findById(studentId.userId);
+            await notificationServices.createNotification({      
+              header: `${experience.name} Flight Plan Item Completion`,
+              description: `You have received ${experience.points} points for completing ${experience.name}`,
+              read: false,
+              userId: userId,
+              sentBy: null
             });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
