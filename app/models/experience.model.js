@@ -58,6 +58,10 @@ const Experience = SequelizeInstance.define("experience", {
   points: {
     type: Sequelize.INTEGER,
   },
+  sequenceNumber: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+  },
 });
 
 export default Experience;

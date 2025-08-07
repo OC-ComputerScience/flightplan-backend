@@ -64,6 +64,10 @@ const Task = SequelizeInstance.define("task", {
   instructionsLink: {
     type: Sequelize.STRING, 
   },
+  sequenceNumber: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
+  },
 });
 
 export default Task;
