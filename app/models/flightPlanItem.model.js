@@ -21,6 +21,8 @@ const FlightPlanItem = SequelizeInstance.define(
         "Awaiting Reflection",
         "Registered",
         "Rejected",
+        "Awaiting Document",
+        "Awaiting Completion",
       ),
     },
     dueDate: {
