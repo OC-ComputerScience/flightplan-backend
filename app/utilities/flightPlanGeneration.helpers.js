@@ -278,7 +278,7 @@ const processExperiences = (
   experiences,
   semestersFromGrad,
 ) => {
-  const oneTimeSpecificExperiences = experiences.filter(
+  const oneTimeExperiences = experiences.filter(
     (experience) => experience.schedulingType === "one-time",
   );
 
@@ -286,31 +286,31 @@ const processExperiences = (
     ({ experienceId }) => experienceId,
   );
 
-  const uncompletedOneTimeSpecificExperiences =
-    oneTimeSpecificExperiences.filter(
+  const uncompletedOneTimeExperiences =
+    oneTimeExperiences.filter(
       (experience) => !completedExperienceIds.includes(experience.id),
     );
 
-  const everySemesterSpecificExperiences = experiences.filter(
+  const everySemesterExperiences = experiences.filter(
     (experience) => experience.schedulingType === "every-semester",
   );
 
-  const everyOtherSemesterSpecificExperiences =
+  const everyOtherSemesterExperiences =
     experiences.filter(
       (experience) => experience.schedulingType === "every-other-semester",
     );
 
-  const uncompletedEveryOtherSemesterSpecificExperiences =
+  const uncompletedEveryOtherSemesterExperiences =
     processEveryOtherSemesterExperiences(
       incompletedExperiences,
-      everyOtherSemesterSpecificExperiences,
+      everyOtherSemesterExperiences,
       semestersFromGrad,
     );
 
   return [
-    ...uncompletedOneTimeSpecificExperiences,
-    ...everySemesterSpecificExperiences,
-    ...uncompletedEveryOtherSemesterSpecificExperiences,
+    ...uncompletedOneTimeExperiences,
+    ...everySemesterExperiences,
+    ...uncompletedEveryOtherSemesterExperiences,
   ];
 };
 
