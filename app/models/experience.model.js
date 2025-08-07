@@ -33,6 +33,10 @@ const Experience = SequelizeInstance.define("experience", {
     ),
     default: "Attendance - Auto Approve",
   },
+  ocEventRequired: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
   reflectionRequired: {
     type: Sequelize.BOOLEAN,
   },
