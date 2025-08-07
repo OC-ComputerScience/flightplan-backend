@@ -4,7 +4,6 @@ const Task = db.task;
 const Experience = db.experience;
 const Student = db.student;
 const Major = db.major;
-const Strength = db.strength;
 const FlightPlan = db.flightPlan;
 const FlightPlanItem = db.flightPlanItem;
 
@@ -43,7 +42,6 @@ const getStudentWithGenerationInfo = async (studentId) => {
     include: [
       { model: FlightPlan, as: "flightPlans" },
       { model: Major, as: "majors" },
-      { model: Strength, as: "strengths" },
     ],
   });
 };
@@ -112,36 +110,29 @@ const getTaskItems = async (completedItems, incompletedItems, student, semesters
     semestersFromGrad,
   );
 
-  // Filter tasks that aren't specific to a student's strengths or majors
+  // Filter tasks that aren't specific to a student's majors
   const nonSpecificTasks = allTasks.filter(
-    (task) => task.strengths.length == 0 && task.majors.length == 0,
+    (task) => task.majors.length == 0,
   );
 
-  const finalNonSpecificTasks = processNonSpecificTasks(
-    completedTasks,
-    incompletedTasks,
-    nonSpecificTasks,
-    semestersFromGrad,
-  );
-
-  // Filter tasks that are specific to a student's strengths or majors
+  // Filter tasks that are specific to a student's majors
   const specificTasks = allTasks.filter(
-    (task) => hasCommonStrengthOrMajor(student, task),
+    (task) => hasCommonMajor(student, task),
   );
 
-  const finalSpecificTasks = processSpecificTasks(
+  const relevantTasks = [...nonSpecificTasks, ...specificTasks];
+
+  return processTasks(
     completedTasks,
     incompletedTasks,
-    specificTasks,
+    relevantTasks,
     semestersFromGrad,
   );
-
-  return [...finalNonSpecificTasks, ...finalSpecificTasks];
 };
 
 const getAllActiveSemesterValidTasks = async (semestersFromGrad) => {
   const allTasks = await Task.findAll({
-    include: [{ model: Strength }, { model: Major }],
+    include: [{ model: Major }],
     where: {
       semestersFromGrad: { [Op.gte]: semestersFromGrad },
       [Op.or]: [
@@ -154,13 +145,13 @@ const getAllActiveSemesterValidTasks = async (semestersFromGrad) => {
   return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad && task.status == "active");
 };
 
-const processNonSpecificTasks = (
+const processTasks = (
   completedTasks,
   incompletedTasks,
-  nonSpecificTasks,
+  tasks,
   semestersFromGrad,
 ) => {
-  const oneTimeTasks = nonSpecificTasks.filter(
+  const oneTimeTasks = tasks.filter(
     (task) => task.schedulingType === "one-time",
   );
 
@@ -170,11 +161,11 @@ const processNonSpecificTasks = (
     (task) => !completedTaskIds.includes(task.id),
   );
 
-  const everySemesterTasks = nonSpecificTasks.filter(
+  const everySemesterTasks = tasks.filter(
     (task) => task.schedulingType === "every-semester",
   );
 
-  const everyOtherSemesterTasks = nonSpecificTasks.filter(
+  const everyOtherSemesterTasks = tasks.filter(
     (task) => task.schedulingType === "every-other-semester",
   );
 
@@ -188,44 +179,6 @@ const processNonSpecificTasks = (
     ...uncompletedOneTimeTasks,
     ...everySemesterTasks,
     ...uncompletedEveryOtherSemesterTasks,
-  ];
-};
-
-const processSpecificTasks = (
-  completedTasks,
-  incompletedTasks,
-  specificTasks,
-  semestersFromGrad,
-) => {
-  const oneTimeSpecificTasks = specificTasks.filter(
-    (task) => task.schedulingType === "one-time",
-  );
-
-  const completedTaskIds = completedTasks.map(({ taskId }) => taskId);
-
-  const uncompletedOneTimeSpecificTasks = oneTimeSpecificTasks.filter(
-    (task) => !completedTaskIds.includes(task.id),
-  );
-
-  const everySemesterSpecificTasks = specificTasks.filter(
-    (task) => task.schedulingType === "every-semester",
-  );
-
-  const everyOtherSemesterSpecificTasks = specificTasks.filter(
-    (task) => task.schedulingType === "every-other-semester",
-  );
-
-  const uncompletedEveryOtherSemesterSpecificTasks =
-    processEveryOtherSemesterTasks(
-      incompletedTasks,
-      everyOtherSemesterSpecificTasks,
-      semestersFromGrad,
-    );
-
-  return [
-    ...uncompletedOneTimeSpecificTasks,
-    ...everySemesterSpecificTasks,
-    ...uncompletedEveryOtherSemesterSpecificTasks,
   ];
 };
 
@@ -282,35 +235,28 @@ const getExperienceItems = async (
 
   const nonSpecificExperiences = allExperiences.filter(
     (experience) =>
-      experience.strengths.length == 0 && experience.majors.length == 0,
-  );
-
-  const finalNonSpecificExperiences = processNonSpecificExperiences(
-    completedExperiences,
-    incompletedExperiences,
-    nonSpecificExperiences,
-    semestersFromGrad,
+      experience.majors.length == 0,
   );
 
   const specificExperiences = allExperiences.filter(
-    (experience) => hasCommonStrengthOrMajor(student, experience),
+    (experience) => hasCommonMajor(student, experience),
   );
 
-  const finalSpecificExperiences = processSpecificExperiences(
+  const releventExperiences = [...nonSpecificExperiences, ...specificExperiences];
+
+  return processExperiences(
     completedExperiences,
     incompletedExperiences,
-    specificExperiences,
+    releventExperiences,
     semestersFromGrad,
   );
-
-  return [...finalNonSpecificExperiences, ...finalSpecificExperiences];
 };
 
 const getAllActiveSemesterValidExperiences = async (
   semestersFromGrad,
 ) => {
   const allExperiences = await Experience.findAll({
-    include: [{ model: Strength }, { model: Major }],
+    include: [{ model: Major }],
     where: {
       semestersFromGrad: { [Op.gte]: semestersFromGrad },
       [Op.or]: [
@@ -326,53 +272,13 @@ const getAllActiveSemesterValidExperiences = async (
   );
 };
 
-const processNonSpecificExperiences = (
+const processExperiences = (
   completedExperiences,
   incompletedExperiences,
-  nonSpecificExperiences,
+  experiences,
   semestersFromGrad,
 ) => {
-  const oneTimeExperiences = nonSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "one-time",
-  );
-
-  const completedExperienceIds = completedExperiences.map(
-    ({ experienceId }) => experienceId,
-  );
-
-  const uncompletedOneTimeExperiences = oneTimeExperiences.filter(
-    (experience) => !completedExperienceIds.includes(experience.id),
-  );
-
-  const everySemesterExperiences = nonSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "every-semester",
-  );
-
-  const everyOtherSemesterExperiences = nonSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "every-other-semester",
-  );
-
-  const uncompletedEveryOtherSemesterExperiences =
-    processEveryOtherSemesterExperiences(
-      incompletedExperiences,
-      everyOtherSemesterExperiences,
-      semestersFromGrad,
-    );
-
-  return [
-    ...uncompletedOneTimeExperiences,
-    ...everySemesterExperiences,
-    ...uncompletedEveryOtherSemesterExperiences,
-  ];
-};
-
-const processSpecificExperiences = (
-  completedExperiences,
-  incompletedExperiences,
-  specificExperiences,
-  semestersFromGrad,
-) => {
-  const oneTimeSpecificExperiences = specificExperiences.filter(
+  const oneTimeSpecificExperiences = experiences.filter(
     (experience) => experience.schedulingType === "one-time",
   );
 
@@ -385,12 +291,12 @@ const processSpecificExperiences = (
       (experience) => !completedExperienceIds.includes(experience.id),
     );
 
-  const everySemesterSpecificExperiences = specificExperiences.filter(
+  const everySemesterSpecificExperiences = experiences.filter(
     (experience) => experience.schedulingType === "every-semester",
   );
 
   const everyOtherSemesterSpecificExperiences =
-    specificExperiences.filter(
+    experiences.filter(
       (experience) => experience.schedulingType === "every-other-semester",
     );
 
@@ -441,19 +347,14 @@ const processEveryOtherSemesterExperiences = (
   return [...relevantEveryOtherSemesterExperiences, ...uncompletedEveryOtherSemesterExperiences];
 };
 
-const hasCommonStrengthOrMajor = (
-  studentWithStrengthsAndMajors,
-  itemWithStrengthsAndMajors,
+const hasCommonMajor = (
+  studentWithMajors,
+  itemWithMajors,
 ) => {
-  const hasCommonStrength = itemWithStrengthsAndMajors.strengths.some((itemStrength) =>
-    studentWithStrengthsAndMajors.strengths.some(
-      (studentStrength) => itemStrength.id === studentStrength.id,
-    ),
-  );
-  const hasCommonMajor = itemWithStrengthsAndMajors.majors.some((itemMajor) =>
-    studentWithStrengthsAndMajors.majors.some(
+  const hasCommonMajor = itemWithMajors.majors.some((itemMajor) =>
+    studentWithMajors.majors.some(
       (studentMajor) => itemMajor.id === studentMajor.id,
     ),
   );
-  return hasCommonStrength || hasCommonMajor;
+  return hasCommonMajor;
 };
