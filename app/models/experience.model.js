@@ -20,22 +20,19 @@ const Experience = SequelizeInstance.define("experience", {
   },
   submissionType: {
     type: Sequelize.ENUM(
-      "Attendance - Reflection",
       "Attendance - Auto Approve",
+      "Attendance - Reflection - Auto Approve",
+      "Attendance - Document - Auto Approve",
+      "Attendance - Reflection - Review",
+      "Attendance - Document - Review",
       "Reflection - Review",
       "Reflection - Auto Approve",
       "Upload Document - Review",
       "Upload Document - Auto Approve",
-      "Upload Document & Reflection - Review",  
-      "Upload Document & Reflection - Auto Approve",
       "Manual Review",
       "Self-Approved",
     ),
     default: "Attendance - Auto Approve",
-  },
-  ocEventRequired: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: true,
   },
   reflectionRequired: {
     type: Sequelize.BOOLEAN,
@@ -52,7 +49,7 @@ const Experience = SequelizeInstance.define("experience", {
     type: Sequelize.ENUM("active", "inactive"),
     defaultValue: "active",
   },
-  requiresEvent: {
+  eventRequired: {
     type: Sequelize.BOOLEAN,
     defaultValue: true,
   },
