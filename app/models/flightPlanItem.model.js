@@ -16,7 +16,7 @@ const FlightPlanItem = SequelizeInstance.define(
       type: Sequelize.ENUM(
         "Complete",
         "Incomplete",
-        "Pending",
+        "Pending Review",
         "Pending Attendance",
         "Awaiting Reflection",
         "Registered",
