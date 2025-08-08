@@ -81,8 +81,20 @@ exports.findAllOptionalForStudentId = async (req, res) => {
     });
 };
 
-exports.findAllActive = async (req, res) => {
+exports.findAllActiveTasks = async (req, res) => {
   await Task.findAllActiveTasks()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while retrieving tasks.",
+      });
+    });
+};
+
+exports.findAllInactiveTasks = async (req, res) => {
+  await Task.findAllInactiveTasks()
     .then((data) => {
       res.send(data);
     })

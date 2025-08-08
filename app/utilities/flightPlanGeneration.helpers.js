@@ -1,23 +1,25 @@
 import db from "../models/index.js";
+import { Op } from "sequelize";
 const Task = db.task;
 const Experience = db.experience;
 const Student = db.student;
 const Major = db.major;
-const Strength = db.strength;
 const FlightPlan = db.flightPlan;
+const FlightPlanItem = db.flightPlanItem;
 
 export const getFlightPlanItemsForNewFlightPlan = async (
   studentId,
   newFlightPlan,
 ) => {
   const student = await getStudentWithGenerationInfo(studentId);
-
-  const completedItems = getAllCompletedFlightPlanItemsForStudent(student);
+  const completedItems = await getAllCompletedFlightPlanItemsForStudent(student);
+  const incompletedItems = await getAllIncompletedFlightPlanItemsForStudent(student);
+  const semestersFromGrad = newFlightPlan.semestersFromGrad;
 
   /* eslint-disable no-undef */
   const [taskItems, experienceItems] = await Promise.all([
-    getTaskItems(completedItems, newFlightPlan, student),
-    getExperienceItems(completedItems, newFlightPlan, student),
+    getTaskItems(completedItems, incompletedItems, student, semestersFromGrad),
+    getExperienceItems(completedItems, incompletedItems, student, semestersFromGrad),
   ]);
 
   const formatItem = (type, item) => ({
@@ -40,69 +42,116 @@ const getStudentWithGenerationInfo = async (studentId) => {
     include: [
       { model: FlightPlan, as: "flightPlans" },
       { model: Major, as: "majors" },
-      { model: Strength, as: "strengths" },
     ],
   });
 };
 
-const getAllCompletedFlightPlanItemsForStudent = (student) => {
-  let completedFlightPlanItems = [];
-
-  student.flightPlans?.forEach((flightPlan) => {
-    let newItems =
-      flightPlan.flightPlanItems?.filter(
-        ({ status }) => status === "Complete",
-      ) || [];
-    completedFlightPlanItems = [...completedFlightPlanItems, ...newItems];
+const getAllCompletedFlightPlanItemsForStudent = async (student) => {
+  const flightPlans = student.flightPlans
+  const completedFlightPlanItems = await FlightPlanItem.findAll({
+    where: {
+      flightPlanId: {
+        [Op.in]: flightPlans.map((flightPlan) => flightPlan.id),
+      },
+      status: "Complete",
+    },
+    include: [
+      {
+        model: Task,
+        as: "task",
+      },
+      {
+        model: Experience,
+        as: "experience",
+      },
+    ],
   });
 
   return completedFlightPlanItems;
 };
 
-const getTaskItems = async (completedItems, newFlightPlan, student) => {
+const getAllIncompletedFlightPlanItemsForStudent = async (student) => {
+  const flightPlans = student.flightPlans
+  const incompletedFlightPlanItems = await FlightPlanItem.findAll({
+    where: {
+      flightPlanId: {
+        [Op.in]: flightPlans.map((flightPlan) => flightPlan.id),
+      },
+      status: "Incomplete",
+    },
+    include: [
+      {
+        model: Task,
+        as: "task",
+      },
+      {
+        model: Experience,
+        as: "experience",
+      },
+      {
+        model: FlightPlan,
+        as: "flightPlan",
+      },
+    ],
+  });
+
+  return incompletedFlightPlanItems;
+};
+
+const getTaskItems = async (completedItems, incompletedItems, student, semestersFromGrad) => {
   const completedTasks = completedItems
     .filter(({ flightPlanItemType }) => flightPlanItemType === "Task")
     .map(({ taskId, task }) => ({ taskId, task }));
 
-  const allTasks = await getAllTasksGreaterThanSemestersFromGrad(
-    newFlightPlan.semestersFromGrad,
+  const incompletedTasks = incompletedItems
+    .filter(({ flightPlanItemType }) => flightPlanItemType === "Task")
+    .map((flightPlanItem) => { return { task: flightPlanItem.task, semestersFromGrad: flightPlanItem.flightPlan.semestersFromGrad } });
+  const allTasks = await getAllActiveSemesterValidTasks(
+    semestersFromGrad,
   );
 
+  // Filter tasks that aren't specific to a student's majors
   const nonSpecificTasks = allTasks.filter(
-    (task) => task.strengths.length == 0 && task.majors.length == 0,
+    (task) => task.majors.length == 0,
   );
 
-  const finalNonSpecificTasks = processNonSpecificTasks(
-    completedTasks,
-    nonSpecificTasks,
-  );
-
+  // Filter tasks that are specific to a student's majors
   const specificTasks = allTasks.filter(
-    (task) => task.strengths.length > 0 || task.majors.length > 0,
+    (task) => hasCommonMajor(student, task),
   );
 
-  const finalSpecificTasks = processSpecificTasks(
+  const relevantTasks = [...nonSpecificTasks, ...specificTasks];
+
+  return processTasks(
     completedTasks,
-    specificTasks,
-    student,
+    incompletedTasks,
+    relevantTasks,
+    semestersFromGrad,
   );
-
-  return [...finalNonSpecificTasks, ...finalSpecificTasks];
 };
 
-const getAllTasksGreaterThanSemestersFromGrad = async (semestersFromGrad) => {
+const getAllActiveSemesterValidTasks = async (semestersFromGrad) => {
   const allTasks = await Task.findAll({
-    include: [{ model: Strength }, { model: Major }],
+    include: [{ model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      [Op.or]: [
+        { semesterEnd: { [Op.lte]: semestersFromGrad } },
+        { semesterEnd: null }
+      ],
+      status: "active", // <-- Only include active tasks
+    }
   });
-  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad);
+  return allTasks.filter((task) => task.semestersFromGrad >= semestersFromGrad && task.status == "active");
 };
 
-const processNonSpecificTasks = (
+const processTasks = (
   completedTasks,
-  nonSpecificTasks,
+  incompletedTasks,
+  tasks,
   semestersFromGrad,
 ) => {
-  const oneTimeTasks = nonSpecificTasks.filter(
+  const oneTimeTasks = tasks.filter(
     (task) => task.schedulingType === "one-time",
   );
 
@@ -112,16 +161,16 @@ const processNonSpecificTasks = (
     (task) => !completedTaskIds.includes(task.id),
   );
 
-  const everySemesterTasks = nonSpecificTasks.filter(
+  const everySemesterTasks = tasks.filter(
     (task) => task.schedulingType === "every-semester",
   );
 
-  const everyOtherSemesterTasks = nonSpecificTasks.filter(
+  const everyOtherSemesterTasks = tasks.filter(
     (task) => task.schedulingType === "every-other-semester",
   );
 
   const uncompletedEveryOtherSemesterTasks = processEveryOtherSemesterTasks(
-    completedTasks,
+    incompletedTasks,
     everyOtherSemesterTasks,
     semestersFromGrad,
   );
@@ -133,89 +182,42 @@ const processNonSpecificTasks = (
   ];
 };
 
-const processSpecificTasks = (
-  completedTasks,
-  specificTasks,
-  student,
-  semestersFromGrad,
-) => {
-  const relevantSpecificTasks = specificTasks.filter(
-    (task) =>
-      task.strengths.some((strength) => student.strengths.includes(strength)) ||
-      task.majors.some((major) => student.majors.includes(major)),
-  );
-
-  const oneTimeSpecificTasks = relevantSpecificTasks.filter(
-    (task) => task.schedulingType === "one-time",
-  );
-
-  const completedTaskIds = completedTasks.map(({ taskId }) => taskId);
-
-  const uncompletedOneTimeSpecificTasks = oneTimeSpecificTasks.filter(
-    (task) => !completedTaskIds.includes(task.id),
-  );
-
-  const everySemesterSpecificTasks = relevantSpecificTasks.filter(
-    (task) => task.schedulingType === "every-semester",
-  );
-
-  const everyOtherSemesterSpecificTasks = relevantSpecificTasks.filter(
-    (task) => task.schedulingType === "every-other-semester",
-  );
-
-  const uncompletedEveryOtherSemesterSpecificTasks =
-    processEveryOtherSemesterTasks(
-      completedTasks,
-      everyOtherSemesterSpecificTasks,
-      semestersFromGrad,
-    );
-
-  return [
-    ...uncompletedOneTimeSpecificTasks,
-    ...everySemesterSpecificTasks,
-    ...uncompletedEveryOtherSemesterSpecificTasks,
-  ];
-};
-
 const processEveryOtherSemesterTasks = (
-  completedTasks,
-  tasks,
+  incompletedTasks,
+  everyOtherTasks,
   semestersFromGrad,
 ) => {
   const isOddSemester = semestersFromGrad % 2 === 1;
 
-  const relevantEveryOtherSemesterTasks = tasks.filter((task) => {
-    // First check if this task is due in the current semester based on parity
-    const taskIsDueThisSemester = isOddSemester
-      ? task.semestersFromGrad % 2 === 1
-      : task.semestersFromGrad % 2 === 0;
+  const relevantEveryOtherSemesterTasks =
+    everyOtherTasks.filter(
+      (task) => isOddSemester
+        ? task.semestersFromGrad % 2 === 1
+        : task.semestersFromGrad % 2 === 0
+    );
 
-    if (!taskIsDueThisSemester) {
-      return false;
-    }
+  const relevantIncompletedTasks =
+    incompletedTasks.filter(
+      (task) =>
+        task.task.schedulingType === "every-other-semester"
+        && task.semestersFromGrad === semestersFromGrad + 1
+        && !relevantEveryOtherSemesterTasks.some((activeTask) => task.task.id === activeTask.id)
+    ).map((task) => task.task);
 
-    // If task is due this semester, check if it was completed in the previous semester
-    if (task.semestersFromGrad !== semestersFromGrad) {
-      const wasCompletedLastSemester = completedTasks.some(
-        ({ task: completedTask }) =>
-          completedTask.id === task.id &&
-          completedTask.semestersFromGrad === semestersFromGrad + 1,
-      );
+  const uncompletedEveryOtherSemesterTasks =
+    relevantIncompletedTasks.filter(
+      (incompletetask) =>
+        everyOtherTasks.some(
+          (activeTask) => activeTask.id === incompletetask.id
+        )
+    );
 
-      if (wasCompletedLastSemester) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  return relevantEveryOtherSemesterTasks;
+  return [...relevantEveryOtherSemesterTasks, ...uncompletedEveryOtherSemesterTasks];
 };
 
 const getExperienceItems = async (
   completedItems,
-  newFlightPlan,
+  incompletedItems,
   student,
   semestersFromGrad,
 ) => {
@@ -223,54 +225,60 @@ const getExperienceItems = async (
     .filter(({ flightPlanItemType }) => flightPlanItemType === "Experience")
     .map(({ experience, experienceId }) => ({ experience, experienceId }));
 
-  let allExperiences = await getAllExperiencesGreaterThanSemestersFromGrad(
-    newFlightPlan.semestersFromGrad,
+  const incompletedExperiences = incompletedItems
+    .filter(({ flightPlanItemType }) => flightPlanItemType === "Experience")
+    .map((flightPlanItem) => { return { experience: flightPlanItem.experience, semestersFromGrad: flightPlanItem.flightPlan.semestersFromGrad } });
+
+  let allExperiences = await getAllActiveSemesterValidExperiences(
+    semestersFromGrad,
   );
 
   const nonSpecificExperiences = allExperiences.filter(
     (experience) =>
-      experience.strengths.length == 0 && experience.majors.length == 0,
-  );
-
-  const finalNonSpecificExperiences = processNonSpecificExperiences(
-    completedExperiences,
-    nonSpecificExperiences,
-    semestersFromGrad,
+      experience.majors.length == 0,
   );
 
   const specificExperiences = allExperiences.filter(
-    (experience) =>
-      experience.strengths.length > 0 || experience.majors.length > 0,
+    (experience) => hasCommonMajor(student, experience),
   );
 
-  const finalSpecificExperiences = processSpecificExperiences(
+  const releventExperiences = [...nonSpecificExperiences, ...specificExperiences];
+
+  return processExperiences(
     completedExperiences,
-    specificExperiences,
-    student,
+    incompletedExperiences,
+    releventExperiences,
     semestersFromGrad,
   );
-
-  return [...finalNonSpecificExperiences, ...finalSpecificExperiences];
 };
 
-const getAllExperiencesGreaterThanSemestersFromGrad = async (
+const getAllActiveSemesterValidExperiences = async (
   semestersFromGrad,
 ) => {
   const allExperiences = await Experience.findAll({
-    include: [{ model: Strength }, { model: Major }],
+    include: [{ model: Major }],
+    where: {
+      semestersFromGrad: { [Op.gte]: semestersFromGrad },
+      [Op.or]: [
+        { semesterEnd: { [Op.lte]: semestersFromGrad } },
+        { semesterEnd: null }
+      ],
+      status: "active", // <-- Only include active experiences
+    },
   });
 
   return allExperiences.filter(
-    (experience) => experience.semestersFromGrad >= semestersFromGrad,
+    (experience) => experience.semestersFromGrad >= semestersFromGrad && experience.status == "active",
   );
 };
 
-const processNonSpecificExperiences = (
+const processExperiences = (
   completedExperiences,
-  nonSpecificExperiences,
+  incompletedExperiences,
+  experiences,
   semestersFromGrad,
 ) => {
-  const oneTimeExperiences = nonSpecificExperiences.filter(
+  const oneTimeExperiences = experiences.filter(
     (experience) => experience.schedulingType === "one-time",
   );
 
@@ -278,21 +286,23 @@ const processNonSpecificExperiences = (
     ({ experienceId }) => experienceId,
   );
 
-  const uncompletedOneTimeExperiences = oneTimeExperiences.filter(
-    (experience) => !completedExperienceIds.includes(experience.id),
-  );
+  const uncompletedOneTimeExperiences =
+    oneTimeExperiences.filter(
+      (experience) => !completedExperienceIds.includes(experience.id),
+    );
 
-  const everySemesterExperiences = nonSpecificExperiences.filter(
+  const everySemesterExperiences = experiences.filter(
     (experience) => experience.schedulingType === "every-semester",
   );
 
-  const everyOtherSemesterExperiences = nonSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "every-other-semester",
-  );
+  const everyOtherSemesterExperiences =
+    experiences.filter(
+      (experience) => experience.schedulingType === "every-other-semester",
+    );
 
   const uncompletedEveryOtherSemesterExperiences =
     processEveryOtherSemesterExperiences(
-      completedExperiences,
+      incompletedExperiences,
       everyOtherSemesterExperiences,
       semestersFromGrad,
     );
@@ -304,89 +314,47 @@ const processNonSpecificExperiences = (
   ];
 };
 
-const processSpecificExperiences = (
-  completedExperiences,
-  specificExperiences,
-  student,
-  semestersFromGrad,
-) => {
-  const relevantSpecificExperiences = specificExperiences.filter(
-    (experience) =>
-      experience.strengths.some((strength) =>
-        student.strengths.includes(strength),
-      ) || experience.majors.some((major) => student.majors.includes(major)),
-  );
-
-  const oneTimeSpecificExperiences = relevantSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "one-time",
-  );
-
-  const completedExperienceIds = completedExperiences.map(
-    ({ experienceId }) => experienceId,
-  );
-
-  const uncompletedOneTimeSpecificExperiences =
-    oneTimeSpecificExperiences.filter(
-      (experience) => !completedExperienceIds.includes(experience.id),
-    );
-
-  const everySemesterSpecificExperiences = relevantSpecificExperiences.filter(
-    (experience) => experience.schedulingType === "every-semester",
-  );
-
-  const everyOtherSemesterSpecificExperiences =
-    relevantSpecificExperiences.filter(
-      (experience) => experience.schedulingType === "every-other-semester",
-    );
-
-  const uncompletedEveryOtherSemesterSpecificExperiences =
-    processEveryOtherSemesterExperiences(
-      completedExperiences,
-      everyOtherSemesterSpecificExperiences,
-      semestersFromGrad,
-    );
-
-  return [
-    ...uncompletedOneTimeSpecificExperiences,
-    ...everySemesterSpecificExperiences,
-    ...uncompletedEveryOtherSemesterSpecificExperiences,
-  ];
-};
-
 const processEveryOtherSemesterExperiences = (
-  completedExperiences,
-  experiences,
+  incompletedExperiences,
+  everyOtherExperiences,
   semestersFromGrad,
 ) => {
   const isOddSemester = semestersFromGrad % 2 === 1;
 
-  const relevantEveryOtherSemesterExperiences = experiences.filter(
-    (experience) => {
-      if (isOddSemester) {
-        return experience.semestersFromGrad % 2 === 1;
-      } else {
-        return experience.semestersFromGrad % 2 === 0;
-      }
-    },
-  );
+  const relevantEveryOtherSemesterExperiences =
+    everyOtherExperiences.filter(
+      (experience) => isOddSemester
+        ? experience.semestersFromGrad % 2 === 1
+        : experience.semestersFromGrad % 2 === 0
+    );
+
+  const relevantIncompletedExperiences =
+    incompletedExperiences.filter(
+      (experience) =>
+        experience.experience.schedulingType === "every-other-semester"
+        && experience.semestersFromGrad === semestersFromGrad + 1
+        && !relevantEveryOtherSemesterExperiences.some((activeExperience) => experience.experience.id === activeExperience.id)
+    ).map((experience) => experience.experience);
 
   const uncompletedEveryOtherSemesterExperiences =
-    relevantEveryOtherSemesterExperiences.filter((experience) => {
-      const wasCompletedLastSemester = completedExperiences.some(
-        (completedExperience) => {
-          return (
-            completedExperience.id === experience.id &&
-            completedExperience.semestersFromGrad === semestersFromGrad + 1
-          );
-        },
-      );
+    relevantIncompletedExperiences.filter(
+      (incompleteExperience) =>
+        everyOtherExperiences.some(
+          (activeExperience) => activeExperience.id === incompleteExperience.id
+        )
+    );
 
-      if (wasCompletedLastSemester) {
-        return false;
-      }
+  return [...relevantEveryOtherSemesterExperiences, ...uncompletedEveryOtherSemesterExperiences];
+};
 
-      return true;
-    });
-
-  return uncompletedEveryOtherSemesterExperiences;
+const hasCommonMajor = (
+  studentWithMajors,
+  itemWithMajors,
+) => {
+  const hasCommonMajor = itemWithMajors.majors.some((itemMajor) =>
+    studentWithMajors.majors.some(
+      (studentMajor) => itemMajor.id === studentMajor.id,
+    ),
+  );
+  return hasCommonMajor;
 };

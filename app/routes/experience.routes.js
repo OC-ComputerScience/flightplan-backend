@@ -10,6 +10,12 @@ router.post("/", [authenticate, isAdmin], experience.create);
 // Retrieve all Experience
 router.get("/", [authenticate], experience.findAll);
 
+// Retrieve all active Experience
+router.get("/active", [authenticate], experience.findAllActiveExperiences);
+
+// Retrieve all inactive Experience
+router.get("/inactive", [authenticate], experience.findAllInactiveExperiences);
+
 router.get(
   "/optional/:studentId",
   [authenticate],
@@ -26,9 +32,6 @@ router.get("/types/categories", [authenticate], experience.getCategories);
 
 router.get("/types/statusTypes", [authenticate], experience.getStatusTypes);
 
-// Retrieve all active Experience
-router.get("/active", [authenticate], experience.findAllActive);
-
 // router.get("/types/fulfillingEvents", [authenticate], experience.getFulfillingEvents);
 
 router.get(
@@ -41,6 +44,14 @@ router.get(
   "/types/schedulingTypes",
   [authenticate],
   experience.getSchedulingTypes,
+);
+
+router.get(
+  "/event/:id",
+  (req, res, next) => {
+    next(); // Make sure to pass control to the next middleware
+  },
+  experience.getExperiencesForEvent,
 );
 
 router.put("/:id/strengths", [authenticate], experience.addStrength);

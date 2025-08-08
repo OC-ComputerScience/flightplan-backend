@@ -15,7 +15,7 @@ router.get("/", [isAdmin], student.findAll);
 router.get("/:id", [authenticate, isAdmin], student.findOne);
 
 // Update a Student with id
-router.put("/:id", [authenticate, isAdmin], student.update);
+router.put("/:id", [authenticate], student.update);
 
 // Delete a Student with id
 router.delete("/:id", [authenticate, isAdmin], student.delete);

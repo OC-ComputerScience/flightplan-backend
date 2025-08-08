@@ -7,22 +7,30 @@ const router = Router();
 // Create a new Task
 router.post("/", [authenticate, isAdmin], task.create);
 
-// Retrieve a single Task with id
-router.get("/:id", [authenticate], task.findOne);
+// Retrieve all active Tasks
+router.get(
+  "/active",
+  [authenticate],
+  task.findAllActiveTasks,
+);
+
+// Retrieve all inactive Tasks
+router.get(
+  "/inactive",
+  [authenticate],
+  task.findAllInactiveTasks,
+);
 
 // Retrieve all Tasks
 router.get("/", [authenticate], task.findAll);
+
+// Retrieve a single Task with id
+router.get("/:id", [authenticate], task.findOne);
 
 router.get(
   "/optional/:studentId",
   [authenticate],
   task.findAllOptionalForStudentId,
-);
-
-router.get(
-  "/active",
-  [authenticate],
-  task.findAllActive,
 );
 
 // Update a Task with id
@@ -34,6 +42,7 @@ router.get("/types/schedulingTypes", [authenticate], task.getSchedulingTypes);
 
 router.get("/types/submissionTypes", [authenticate], task.getSubmissionTypes);
 
+// Retrieve all status types
 router.get("/types/statusTypes", [authenticate], task.getStatusTypes);
 
 // TaskMajor

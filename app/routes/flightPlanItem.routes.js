@@ -42,13 +42,13 @@ router.put("/:id", [authenticate], flightPlanItem.update);
 
 router.put(
   "/:id/approve",
-  [authenticate, isAdmin],
+  [authenticate],
   flightPlanItem.approveFlightPlanItem,
 );
 
 router.put(
   "/:id/reject",
-  [authenticate, isAdmin],
+  [authenticate],
   flightPlanItem.rejectFlightPlanItem,
 );
 

@@ -17,10 +17,12 @@ exports.create = async (submissionData) => {
     const submission = await Submission.create(submissionData, {
       transaction: t,
     });
+    if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
       { status: "Pending" },
       { where: { id: submission.flightPlanItemId }, transaction: t },
     );
+  }
 
     const flightPlanItem = await FlightPlanItem.findOne({
       where: { id: submission.flightPlanItemId },
@@ -43,16 +45,6 @@ exports.create = async (submissionData) => {
       ],
       transaction: t,
     });
-
-    await Notification.create(
-      {
-        userId: student.user.id,
-        header: "New submission for flight plan item",
-        description:
-          "You have been requested to review a new submission for a flight plan item",
-      },
-      { transaction: t },
-    );
     await t.commit();
     return submission;
   } catch (err) {
@@ -68,10 +60,12 @@ exports.bulkCreate = async (submissionData) => {
       transaction: t,
     });
 
+    if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
       { status: "Pending" },
       { where: { id: submissionData[0].flightPlanItemId }, transaction: t },
     );
+  }
 
     const flightPlanItem = await FlightPlanItem.findOne({
       where: { id: submissionData[0].flightPlanItemId },
@@ -94,16 +88,6 @@ exports.bulkCreate = async (submissionData) => {
       ],
       transaction: t,
     });
-
-    await Notification.create(
-      {
-        userId: student.user.id,
-        header: "New submission for flight plan item",
-        description:
-          "You have been requested to review a new submission for a flight plan item",
-      },
-      { transaction: t },
-    );
     await t.commit();
     return submissions;
   } catch (err) {

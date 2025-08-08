@@ -43,15 +43,15 @@ exports.generateFlightPlan = async (studentId) => {
   }
 
   const currentFlightPlan = (await getFlightPlanForStudentAndSemester(studentId, studentSemesterFromGraduation));
-  if (currentFlightPlan) {
+  if (currentFlightPlan?.id) {
     throw Error("Student's flight plan has already been generated for this semester.")
   }
 
   // Check for current semester, checks for next semester
   let currentSemester = (await SemesterUtils.getCurrentSemester());
-  if (!currentSemester) {
+  if (!currentSemester?.id) {
     const nextExpectedSemester = (await SemesterUtils.getNextSemester());
-    if(nextExpectedSemester) {
+    if(nextExpectedSemester?.id) {
       currentSemester = nextExpectedSemester;
     } else {
       throw Error("Next semester not found, please create a new semester")
@@ -97,8 +97,8 @@ const getFlightPlanForStudentAndSemester = async(studentId, semestersFromGraduat
 
   const flightPlanForStudentAndSemester = student.flightPlans.map(fp => fp.get({ plain: true })).find((fp) => fp.semestersFromGrad == semestersFromGraduation);
 
-  if (!flightPlanForStudentAndSemester) {
-    return null;
+  if (!flightPlanForStudentAndSemester?.id) {
+    return Error("No Flight Plan For Semester");
   }
   return flightPlanForStudentAndSemester;
 }

@@ -19,7 +19,7 @@ const Experience = SequelizeInstance.define("experience", {
     ),
   },
   submissionType: {
-    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Attendance - Reflection", "Attendance - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Appointed", "text", "files", "both", "attendance"),
+    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Attendance - Reflection", "Attendance - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Approved", "text", "files", "both", "attendance"),
     default: "attendance",
   },
   reflectionRequired: {
@@ -43,6 +43,9 @@ const Experience = SequelizeInstance.define("experience", {
   semestersFromGrad: {
     type: Sequelize.INTEGER,
   },
+  semesterEnd: {
+    type: Sequelize.INTEGER,
+  },
   description: {
     type: Sequelize.STRING(2000),
   },
@@ -54,6 +57,10 @@ const Experience = SequelizeInstance.define("experience", {
   },
   points: {
     type: Sequelize.INTEGER,
+  },
+  sequenceNumber: {
+    type: Sequelize.INTEGER,
+    defaultValue: 1,
   },
 });
 

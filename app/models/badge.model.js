@@ -17,8 +17,20 @@ const Badge = SequelizeInstance.define("badge", {
     type: Sequelize.STRING(255),
   },
   ruleType: {
-    type: Sequelize.ENUM("Task and Experience Defined"),
-    defaultValue: "Task and Experience Defined",
+    type: Sequelize.ENUM("Experiences and Tasks", "All Tasks and Experiences for Year", "All Tasks for Year", "Number of Tasks for Year", "Number of Badges", "Number of Tasks or Experiences for Year"),
+    defaultValue: "Experiences and Tasks",
+  },
+  yearsFromGrad: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  completionQuantityOne: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  completionQuantityTwo: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
   },
   status: {
     type: Sequelize.ENUM(

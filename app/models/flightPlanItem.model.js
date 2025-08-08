@@ -27,6 +27,10 @@ const FlightPlanItem = SequelizeInstance.define(
     name: {
       type: Sequelize.STRING(255),
     },
+    optional: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    }
   },
   {
     timestamps: true,
