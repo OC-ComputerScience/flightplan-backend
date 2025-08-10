@@ -4,7 +4,7 @@ import Student from "../sequelizeUtils/student.js"
 const exports = {};
 
 exports.getStudentForEmail = async (req, res) => {
-  await Colleague.getStudentForEmail(req.body.email)
+  await Colleague.getStudentForEmail(req.query.email)
     .then((result) => {
       res.send(result);
     })
@@ -18,7 +18,7 @@ exports.getStudentForEmail = async (req, res) => {
 };
 
 exports.getStudentForOCStudentId = async (req, res) => {
-  await Colleague.getStudentForOCStudentId(req.body.OCStudentId)
+  await Colleague.getStudentForOCStudentId(req.query.OCStudentId)
     .then((result) => {
       res.send(result);
     })
@@ -46,7 +46,7 @@ exports.createNewStudentForUserId = async (req, res) => {
 };
 
 exports.checkUpdateStudentWithColleagueDataForStudentId = async (req, res) => {
-  const studentWithUserAndMajors = Student.findByIdWithUserAndMajors(req.params.id);
+  const studentWithUserAndMajors = await Student.findByIdWithUserAndMajors(req.params.id);
   await Colleague.checkUpdateStudentWithColleagueData(studentWithUserAndMajors)
     .then((result) => {
       res.send(result);

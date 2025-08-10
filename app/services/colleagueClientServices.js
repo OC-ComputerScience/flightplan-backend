@@ -53,17 +53,16 @@ exports.createNewStudentForUserId = async (userId) => {
             pointsUsed: 0,
         };
         const newStudent = await Student.create(studentData);
-        console.log(newStudent);
 
-        // majors
+        // create majors for student
         newColleagueData.Majors.forEach(async (major) => {
             const majorData = await Major.findForOCMajorId(major.Code);
             if (majorData) {
-                console.log("Create Major");
-                console.log(majorData);
                 Student.addMajor(newStudent.id, majorData.id);
             }
         })
+
+        return newStudent;
     }
     catch (error) {
         console.error("Error calling Colleague API:", error.response?.data || error.message);
@@ -82,7 +81,6 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
                 Student.removeMajor(studentWithUserAndMajors.id, major.id);
             })
             majorDifferences.majorsToAdd.forEach(async (major) => {
-                //find major for ocid
                 const majorData = await Major.findForOCMajorId(major.Code);
                 if (majorData?.id) {
                     Student.addMajor(studentWithUserAndMajors.id, majorData.id);
