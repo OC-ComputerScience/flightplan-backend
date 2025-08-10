@@ -110,6 +110,40 @@ exports.findAll = async ({
   });
 };
 
+exports.findAllCurrentStudentsWithUserAndMajors = async () => {
+  return await Student.findAll({
+    where: {
+      graduationDate:{
+        [Op.gt]: Date.now(),
+      },
+    },
+    include: [
+      {
+        model: User, as: "user"
+      },
+      {
+        model: Major, as: "majors"
+      },
+    ]
+  });
+};
+
+exports.findByIdWithUserAndMajors = async (id) => {
+  return await Student.findOne({
+    where: {
+      id: id,
+    },
+    include: [
+      {
+        model: User, as: "user"
+      },
+      {
+        model: Major, as: "majors"
+      },
+    ]
+  });
+};
+
 exports.findById = async (id) => {
   return await Student.findByPk(id, {
     include: [{ model: User, as: "user" }],

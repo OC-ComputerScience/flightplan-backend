@@ -3,6 +3,7 @@ import SequelizeInstance from "./app/sequelizeUtils/sequelizeInstance.js";
 import routes from "./app/routes/index.js";
 import cors from "cors";
 import tasks from "./app/background/hourly.js";
+import dailyTasks from "./app/background/daily.js";
 
 var alterDB = false;
 
@@ -35,6 +36,7 @@ app.use("/flight-plan-t1", routes); // Load the routes from the routes folder
 // start background tasks
 
 tasks.hourlyTasks();
+dailyTasks.dailyTasks();
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3100;
