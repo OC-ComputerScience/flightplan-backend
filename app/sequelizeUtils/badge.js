@@ -148,9 +148,9 @@ exports.findAllAvailableBadgesForStudent = async (
 };
 
 // Returns a paginated list of all badges with status "active".
-exports.findAllActiveBadges = async (page = 1, pageSize = 10) => {
+exports.findAllActiveBadges = async (page = 1, pageSize = 6) => {
   page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 10);
+  pageSize = parseInt(pageSize, 6);
   const offset = (page - 1) * pageSize;
   const limit = pageSize;
   const whereCondition = { status: "active" };
