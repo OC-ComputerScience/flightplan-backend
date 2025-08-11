@@ -2,6 +2,7 @@ import axios from "axios";
 import Student from "../sequelizeUtils/student.js";
 import Major from "../sequelizeUtils/major.js";
 import User from "../sequelizeUtils/user.js";
+import FlightPlan from "../sequelizeUtils/flightPlan.js";
 
 const BASE_URL = 'https://stingray.oc.edu/api'
 const exports = {};
@@ -93,18 +94,23 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
 
         // check if graduation data needs an update
         if (!isSameDay(studentWithUserAndMajors.graduationDate, newColleagueData.GraduationDate)) {
+            const newSemestersFromGraduation = calculateSemestersFromGraduation(newColleagueData.GraduationDate);
             const updatedStudentData = {
                 graduationDate: newColleagueData.GraduationDate,
-                semestersFromGrad: calculateSemestersFromGraduation(newColleagueData.GraduationDate),
+                semestersFromGrad: newSemestersFromGraduation,
             }
-            Student.update(studentWithUserAndMajors.id, updatedStudentData);
+            await Student.update(studentWithUserAndMajors.id, updatedStudentData);
+
+            if (studentWithUserAndMajors.semestersFromGrad !== newSemestersFromGraduation && newSemestersFromGraduation != 0) {
+                const oldFlightPlan = await FlightPlan.getFlightPlanForStudentAndSemester(studentWithUserAndMajors.id, studentWithUserAndMajors.semestersFromGrad);
+                FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
+            }
         }
     } catch (error) {
         // Current known issue would be email not in Colleague (outside of OC email)
         console.error(`Error updating student with Colleugue data for student ${studentWithUserAndMajors.user.fullName} id: ${studentWithUserAndMajors.id}`);
         console.error(error);
     }
-
 }
 
 function hasSameMajors(oldMajors, newMajors) {

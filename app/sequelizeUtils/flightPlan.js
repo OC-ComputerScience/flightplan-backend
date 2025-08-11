@@ -12,6 +12,7 @@ const {
 
 // Sequelize Utilities
 import SemesterUtils from "../sequelizeUtils/semester.js";
+import FlightPlanItemUtils from "../sequelizeUtils/flightPlanItem.js";
 
 // Helpers
 import { getFlightPlanItemsForNewFlightPlan } from "../utilities/flightPlanGeneration.helpers.js";
@@ -77,6 +78,51 @@ exports.generateFlightPlan = async (studentId) => {
 
   return flightPlanItems;
 };
+
+// updates sent flight plan by only removing uncomplete flight plan items and adding all new ones that should be added
+// also updates to current semester and students semesters from grad
+exports.updateOldFlightPlan = async (flightPlanId) => {
+  const oldFlightPlan = await FlightPlan.findByPk(flightPlanId);
+  const currentStudent = await Student.findByPk(oldFlightPlan.studentId);
+
+  const currentSemester = (await SemesterUtils.getCurrentSemester());
+
+  if (!currentSemester?.id) {
+    throw Error("Current Semester not found")
+  }
+
+  const newFlightPlanData = {
+    studentId: currentStudent.id,
+    semesterId: currentSemester.id,
+    semestersFromGrad: currentStudent.semestersFromGrad,
+  };
+  await FlightPlan.update(newFlightPlanData, {
+    where: { id: flightPlanId },
+  });
+  const newFlightPlan = await FlightPlan.findByPk(flightPlanId);
+
+  const oldFlightPlanItems = (await FlightPlanItemUtils.findAllFlightPlanItemsByFlightPlanId(oldFlightPlan.id, 1, 1000)).flightPlanItems;
+  const oldFlightPlanItemsToKeep = oldFlightPlanItems.filter((oldFlightPlanItem) => oldFlightPlanItem.status !== "Incomplete");
+  const oldFlightPlanItemsToRemove = oldFlightPlanItems.filter((oldFlightPlanItem) => oldFlightPlanItem.status === "Incomplete");
+  oldFlightPlanItemsToRemove.forEach(async (oldFlightPlanItemToRemove) => {
+    await FlightPlanItemUtils.deleteFlightPlanItem(oldFlightPlanItemToRemove.id)
+  });
+
+  const newFlightPlanItems = await getFlightPlanItemsForNewFlightPlan(
+    currentStudent.id,
+    newFlightPlan,
+  );
+  const newToAddFlightPlanItems = newFlightPlanItems.filter(
+    (newFlightPlanItem) => !oldFlightPlanItemsToKeep.find(
+      (oldFlightPlanItemToKeep) => oldFlightPlanItemToKeep?.taskId === newFlightPlanItem?.taskId 
+      || oldFlightPlanItemToKeep?.experienceId === newFlightPlanItem?.experienceId
+    ));
+  newToAddFlightPlanItems.forEach(async (flightPlanItem) => {
+    await FlightPlanItem.create(flightPlanItem);
+  });
+
+  return newFlightPlan;
+}
 
 exports.getFlightPlanForStudentAndSemester = async (studentId, semestersFromGraduation) => {
   return await getFlightPlanForStudentAndSemester(studentId, semestersFromGraduation);
