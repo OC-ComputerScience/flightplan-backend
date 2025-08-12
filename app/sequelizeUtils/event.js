@@ -514,18 +514,12 @@ exports.markAttendance = async (eventId, studentIds) => {
         },
       });
 
-      console.log("Flight plan Items: ", flightPlanItems)
-
       for (const item of flightPlanItems) {
         const experience = eventWithExperiences.experiences.find(
           (exp) => exp.id === item.experienceId,
         );
         if (!experience) continue;
 
-        console.log(item.status)
-        console.log(experience.submissionType)
-        console.log(experience.submissionType.includes("Attendance"))
-        console.log(item.status === "Pending Attendance" && experience.submissionType.includes("Attendance"))
         if (eventStudent.attended) {
           if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
             await item.update({
@@ -534,6 +528,7 @@ exports.markAttendance = async (eventId, studentIds) => {
             });
             let studentId = await studentServices.findById(studentId);
             let userId = await userServices.findById(studentId.userId);
+            
             await notificationServices.createNotification({      
               header: `${experience.name} Flight Plan Item Completion`,
               description: `You have received ${experience.points} points for completing ${experience.name}`,
@@ -563,7 +558,6 @@ exports.markAttendance = async (eventId, studentIds) => {
             });
           }
           else if (item.status === "Pending Attendance" && experience.submissionType.includes("Attendance")) {
-            console.log("Made it to corrent")
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
@@ -581,7 +575,6 @@ exports.markAttendance = async (eventId, studentIds) => {
             await kickOffBadgeAwarding(item.id);
           }
           else if (item.status === "Complete" || !item.status.includes("Attendance")) {
-            console.log("Status was complete")
             continue;
           }
           else { 
