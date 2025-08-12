@@ -19,10 +19,10 @@ const FlightPlanItem = SequelizeInstance.define(
         "Pending Review",
         "Pending Attendance",
         "Awaiting Reflection",
-        "Registered",
-        "Rejected",
         "Awaiting Document",
         "Awaiting Completion",
+        "Registered",
+        "Rejected",
       ),
     },
     dueDate: {

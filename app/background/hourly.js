@@ -1,5 +1,6 @@
 import cron from "node-cron";
 import Event from "../sequelizeUtils/event.js";
+import FlightPlanItem from "../sequelizeUtils/flightPlanItem.js"
 
 const exports = {};
 
@@ -29,6 +30,8 @@ async function checkForPastEvents() {
       let event = pastEvents[i].dataValues;
       event.status = "Past";
       Event.updateEvent(event,event.id );
+
+      // checkForPendingExperiences()
       }
     })
     .catch((err) => {
@@ -36,6 +39,10 @@ async function checkForPastEvents() {
     });
 
 
+  }
+
+  async function checkForPendingExperiences() {
+    FlightPlanItem.find
   }
 
 export default exports;

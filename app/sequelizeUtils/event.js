@@ -514,12 +514,18 @@ exports.markAttendance = async (eventId, studentIds) => {
         },
       });
 
+      console.log("Flight plan Items: ", flightPlanItems)
+
       for (const item of flightPlanItems) {
         const experience = eventWithExperiences.experiences.find(
           (exp) => exp.id === item.experienceId,
         );
         if (!experience) continue;
 
+        console.log(item.status)
+        console.log(experience.submissionType)
+        console.log(experience.submissionType.includes("Attendance"))
+        console.log(item.status === "Pending Attendance" && experience.submissionType.includes("Attendance"))
         if (eventStudent.attended) {
           if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
             await item.update({
@@ -538,13 +544,26 @@ exports.markAttendance = async (eventId, studentIds) => {
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
           }
-          else if (item.status !== "Complete" && item.status !== "Pending Attendance" && experience.submissionType === "Attendance - Reflection") {
+          else if (item.status !== "Complete" && 
+            item.status !== "Pending Attendance" && 
+            (experience.submissionType === "Attendance - Reflection - Review" || 
+              experience.submissionType === "Attendance - Reflection - Auto Approve")) {
             await item.update({
               status: "Awaiting Reflection",
               pointsEarned: 0,
             });
           }
-          else if (item.status == "Pending Attendance" && experience.submissionType === "Attendance - Reflection") {
+          else if (item.status !== "Complete" && 
+            item.status !== "Pending Attendance" && 
+            (experience.submissionType === "Attendance - Document - Review" || 
+              experience.submissionType === "Attendance - Document - Auto Approve")) {
+            await item.update({
+              status: "Awaiting Document",
+              pointsEarned: 0,
+            });
+          }
+          else if (item.status === "Pending Attendance" && experience.submissionType.includes("Attendance")) {
+            console.log("Made it to corrent")
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
@@ -560,6 +579,10 @@ exports.markAttendance = async (eventId, studentIds) => {
             });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
+          }
+          else if (item.status === "Complete" || !item.status.includes("Attendance")) {
+            console.log("Status was complete")
+            continue;
           }
           else { 
             console.error("Was not able to update item status for experience: ", experience.name);

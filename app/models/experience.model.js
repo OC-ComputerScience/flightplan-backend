@@ -29,7 +29,6 @@ const Experience = SequelizeInstance.define("experience", {
       "Reflection - Auto Approve",
       "Upload Document - Review",
       "Upload Document - Auto Approve",
-      "Manual Review",
       "Self-Approved",
     ),
     default: "Attendance - Auto Approve",
