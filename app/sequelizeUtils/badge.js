@@ -149,21 +149,26 @@ exports.findAllAvailableBadgesForStudent = async (
 
 // Returns a paginated list of all badges with status "active".
 exports.findAllActiveBadges = async (page = 1, pageSize = 6) => {
-  page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 6);
+  // Ensure page and pageSize are valid numbers
+  page = parseInt(page, 10) || 1;
+  pageSize = parseInt(pageSize, 10) || 6;
+  
   const offset = (page - 1) * pageSize;
   const limit = pageSize;
+  
   const whereCondition = { status: "active" };
+
   let badges = await Badge.findAll({
-    offset,
-    limit,
     where: whereCondition,
+    offset: offset,
+    limit: limit,
+    order: [['createdAt', 'DESC']]
   });
 
   badges = getFilesForBadges(badges);
 
   const count = await Badge.count({
-    where: whereCondition, // Apply the search condition to the count as well
+    where: whereCondition
   });
 
   const totalPages = Math.ceil(count / pageSize);
