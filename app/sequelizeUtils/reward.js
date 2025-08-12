@@ -11,8 +11,8 @@ import FileHelpers from "../utilities/fileStorage.helper.js";
 const exports = {};
 
 exports.findAllRewards = async (
-  page = null,
-  pageSize = null,
+  page = 1,
+  pageSize = 10,
   searchQuery = "",
   filters = {},
 ) => {
@@ -23,13 +23,28 @@ exports.findAllRewards = async (
   }
 
   if (filters.redemptionType) {
-    whereCondition.redemptionType = {
-      [Op.like]: `%${filters.redemptionType}%`,
+    whereCondition.redemptionType = filters.redemptionType;
+  }
+
+  if (filters.status) {
+    whereCondition.status = filters.status;
+  }
+
+  if (filters.minPoints) {
+    whereCondition.pointCost = {
+      ...whereCondition.pointCost,
+      [Op.gte]: filters.minPoints,
     };
   }
 
-  let order = [];
+  if (filters.maxPoints) {
+    whereCondition.pointCost = {
+      ...whereCondition.pointCost,
+      [Op.lte]: filters.maxPoints,
+    };
+  }
 
+  let order = [["createdAt", "DESC"]];
   if (filters.sortAttribute && filters.sortDirection) {
     // Default to ascending order if direction is not provided
     const direction =

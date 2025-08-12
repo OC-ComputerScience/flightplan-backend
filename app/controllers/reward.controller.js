@@ -41,21 +41,32 @@ exports.findAll = async (req, res) => {
     pageSize,
     searchQuery,
     redemptionType,
+    status,
+    minPoints,
+    maxPoints,
     sortAttribute,
     sortDirection,
   } = req.query;
 
-  await Reward.findAllRewards(page, pageSize, searchQuery, {
-    redemptionType,
-    sortAttribute,
-    sortDirection,
-  })
+  await Reward.findAllRewards(
+    page,
+    pageSize,
+    searchQuery,
+    {
+      redemptionType,
+      status,
+      minPoints: minPoints ? Number(minPoints) : null,
+      maxPoints: maxPoints ? Number(maxPoints) : null,
+      sortAttribute,
+      sortDirection,
+    }
+  )
     .then((data) => {
       res.send(data);
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || "Some error occurred while retrieving rewards.",
+        message: err.message || "Error retrieving rewards",
       });
     });
 };
@@ -179,13 +190,12 @@ exports.deleteRewardImage = async (req, res) => {
 
 exports.redeemReward = async (req, res) => {
   try {
-
     const result = await Reward.redeemReward(
       req.params.id,
       req.body.studentId,
       req.body.userId,
     );
-   
+
     res.status(200).json(result);
   } catch (err) {
     console.log("Could not redeem reward: " + err);
