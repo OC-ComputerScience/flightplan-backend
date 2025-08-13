@@ -91,6 +91,12 @@ exports.findAll = async (req, res) => {
     req.query.page,
     req.query.pageSize,
     req.query.searchQuery,
+    {
+      status: req.query.status,
+      ruleType: req.query.ruleType,
+      sortAttribute: req.query.sortAttribute,
+      sortDirection: req.query.sortDirection
+    }
   )
     .then((result) => {
       res.send(result);
