@@ -38,17 +38,37 @@ exports.findOne = async (req, res) => {
 };
 
 exports.findAll = async (req, res) => {
+  const {
+    page,
+    pageSize,
+    searchQuery,
+    category,
+    schedulingType,
+    submissionType,
+    status,
+    sortAttribute,
+    sortDirection
+  } = req.query;
+
   await Experience.findAllExperiences(
-    req.query.page,
-    req.query.pageSize,
-    req.query.searchQuery,
+    page,
+    pageSize,
+    searchQuery,
+    {
+      category,
+      schedulingType,
+      submissionType,
+      status,
+      sortAttribute,
+      sortDirection
+    }
   )
     .then((data) => {
       res.send(data);
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || "Some error occurred while retrieving tasks.",
+        message: err.message || "Some error occurred while retrieving experiences.",
       });
     });
 };
