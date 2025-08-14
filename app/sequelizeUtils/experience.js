@@ -10,19 +10,42 @@ exports.findAllExperiences = async (
   page = null,
   pageSize = null,
   searchQuery = "",
+  filters = {}
 ) => {
-  const whereCondition = searchQuery
-    ? {
-        name: {
-          [Op.like]: `%${searchQuery}%`,
-        },
-      }
-    : {};
+  const whereCondition = {};
+
+  if (searchQuery) {
+    whereCondition.name = { [Op.like]: `%${searchQuery}%` };
+  }
+
+  // Add filter conditions
+  if (filters.category) {
+    whereCondition.category = filters.category;
+  }
+
+  if (filters.schedulingType) {
+    whereCondition.schedulingType = filters.schedulingType;
+  }
+
+  if (filters.submissionType) {
+    whereCondition.submissionType = filters.submissionType;
+  }
+
+  if (filters.status) {
+    whereCondition.status = filters.status;
+  }
+
+  // Add sorting
+  let order = [['createdAt', 'DESC']];
+  if (filters.sortAttribute && filters.sortDirection) {
+    order = [[filters.sortAttribute, filters.sortDirection]];
+  }
 
   // If pagination parameters are not provided, return all records
   if (!page || !pageSize) {
     const experiences = await Experience.findAll({
       where: whereCondition,
+      order
     });
     return { experiences, count: experiences.length };
   }
@@ -32,13 +55,14 @@ exports.findAllExperiences = async (
   const limit = parseInt(pageSize, 10);
 
   const experiences = await Experience.findAll({
-    offset,
-    limit,
     where: whereCondition,
+    order,
+    offset,
+    limit
   });
 
   const count = await Experience.count({
-    where: whereCondition,
+    where: whereCondition
   });
 
   const totalPages = Math.ceil(count / parseInt(pageSize, 10));
