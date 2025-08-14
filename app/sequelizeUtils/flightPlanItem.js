@@ -204,7 +204,67 @@ exports.updateFlightPlanItem = async (flightPlanItemData, flightPlanItemId) => {
   });
 };
 
-exports.approveFlightPlanItem = async (flightPlanItemId) => {
+exports.approveFlightPlanItemsForTaskInSemesterForStudents = async (
+  studentEmails,
+  taskId,
+  semestersFromGrad,
+) => {
+  let failedEmailsMessages = [];
+
+  for (const email of studentEmails) {
+    try {
+      const user = await User.findOne({
+        where: { email },
+        include: [{ model: Student, as: "student" }],
+      });
+      checkIfExists(user, `User`, email);
+
+      const student = user?.student;
+      checkIfExists(student, `Student`, email);
+      const flightPlan = await FlightPlan.findOne({
+        where: {
+          studentId: student.id,
+          semestersFromGrad: semestersFromGrad,
+        },
+      });
+      checkIfExists(flightPlan, `Flight Plan`, email, `Flight Plan not found for ${email} in semester ${semestersFromGrad}`);
+
+      const flightPlanItem = await FlightPlanItem.findOne({
+        where: {
+          flightPlanId: flightPlan.id,
+          taskId: taskId,
+        },
+      });
+      checkIfExists(flightPlanItem, `Flight Plan Item`, email, `Flight Plan Item not found for ${email} in flight plan for semester ${semestersFromGrad}`);
+
+      if (flightPlanItem?.status !== "Complete") {
+        await approveFlightPlanItem(flightPlanItem.id);
+      } else {
+        throw new Error(`Flight plan item already approved for ${email}`);
+      }
+    } catch (error) {
+      failedEmailsMessages.push({ email, message: error.message });
+    }
+  }
+  if (failedEmailsMessages.length > 0) {
+    throw new Error(`Failed to approve flight plan items for emails:\n${failedEmailsMessages.map((emailObject) => emailObject.message).join("\n")}`);
+  }
+  return { message: "Flight plan items approved successfully" };
+}
+
+const checkIfExists = (item, itemName, owner = null, overrideMessage = null) => {
+  if (item === null || item === undefined) {
+    if (overrideMessage) throw Error(overrideMessage);
+    throw Error(`${itemName} not found ${owner ? "for " + owner : ""}`);
+  }
+  return true;
+}
+
+exports.approveFlightPlanItem = async (flightPlanItemid) => {
+  return await approveFlightPlanItem(flightPlanItemid);
+}
+
+const approveFlightPlanItem = async (flightPlanItemId) => {
   const t = await sequelize.transaction();
   try {
     await FlightPlanItem.update(
