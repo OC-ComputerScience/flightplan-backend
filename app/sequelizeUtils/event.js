@@ -820,6 +820,9 @@ exports.importAttendance = async (attendanceData) => {
 
 exports.getEventsForExperience = async (experienceId) => {
   return await db.event.findAll({
+    where: {
+      status: { [Op.ne]: 'Past' },
+    },
     include: [
       {
         model: db.experience,
@@ -829,7 +832,7 @@ exports.getEventsForExperience = async (experienceId) => {
         required: true,
       },
     ],
-    order: [["date", "ASC"]], // optional: sort upcoming first
+    order: [["date", "ASC"]],
   });
 };
 
