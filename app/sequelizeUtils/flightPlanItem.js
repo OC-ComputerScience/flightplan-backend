@@ -15,6 +15,9 @@ import FileHelpers from "../utilities/fileStorage.helper.js";
 import kickOffBadgeAwarding from "../utilities/badgeAward.helpers.js";
 import sequelize from "../sequelizeUtils/sequelizeInstance.js";
 // Module Exports Placeholder
+
+import semesterServices from "../sequelizeUtils/semester.js";
+
 const exports = {};
 
 exports.findAllFlightPlanItems = async (page = 1, pageSize = 10) => {
@@ -204,12 +207,17 @@ exports.updateFlightPlanItem = async (flightPlanItemData, flightPlanItemId) => {
   });
 };
 
-exports.approveFlightPlanItemsForTaskInSemesterForStudents = async (
+exports.approveFlightPlanItemsForTaskForStudents = async (
   studentEmails,
   taskId,
-  semestersFromGrad,
 ) => {
-  let failedEmailsMessages = [];
+  let failedEmailMessages = [];
+  let successfullEmailMessages = [];
+
+  const currentSemester = await semesterServices.getCurrentSemester();
+  if (!currentSemester?.id) {
+    throw new Error("Current semester not found");
+  }
 
   for (const email of studentEmails) {
     try {
@@ -224,10 +232,10 @@ exports.approveFlightPlanItemsForTaskInSemesterForStudents = async (
       const flightPlan = await FlightPlan.findOne({
         where: {
           studentId: student.id,
-          semestersFromGrad: semestersFromGrad,
+          semesterId: currentSemester.id,
         },
       });
-      checkIfExists(flightPlan, `Flight Plan`, email, `Flight Plan not found for ${email} in semester ${semestersFromGrad}`);
+      checkIfExists(flightPlan, `Flight Plan`, email, `Flight Plan not found for ${email} in current semester`);
 
       const flightPlanItem = await FlightPlanItem.findOne({
         where: {
@@ -235,19 +243,21 @@ exports.approveFlightPlanItemsForTaskInSemesterForStudents = async (
           taskId: taskId,
         },
       });
-      checkIfExists(flightPlanItem, `Flight Plan Item`, email, `Flight Plan Item not found for ${email} in flight plan for semester ${semestersFromGrad}`);
+      checkIfExists(flightPlanItem, `Flight Plan Item`, email, `Flight Plan Item not found for ${email} in current semester`);
 
       if (flightPlanItem?.status !== "Complete") {
         await approveFlightPlanItem(flightPlanItem.id);
+        successfullEmailMessages.push({ email, message: `Task successfully approved for ${email}` });
       } else {
-        throw new Error(`Flight plan item already approved for ${email}`);
+        throw new Error(`Flight plan item already approved for ${email} in current semester`);
       }
     } catch (error) {
-      failedEmailsMessages.push({ email, message: error.message });
+      failedEmailMessages.push({ email, message: error.message });
     }
   }
-  if (failedEmailsMessages.length > 0) {
-    throw new Error(`Failed to approve flight plan items for emails:\n${failedEmailsMessages.map((emailObject) => emailObject.message).join("\n")}`);
+  if (failedEmailMessages.length > 0) {
+    const errorMessages = [...failedEmailMessages, ...successfullEmailMessages];
+    throw new Error(`Failed to approve flight plan items for emails:\n${errorMessages.map((emailObject) => emailObject.message).join("\n")}`);
   }
   return { message: "Flight plan items approved successfully" };
 }

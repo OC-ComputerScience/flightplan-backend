@@ -221,12 +221,11 @@ exports.update = async (req, res) => {
   }
 };
 
-exports.approveFlightPlanItemsForTaskInSemesterForStudents = async (req, res) => {
+exports.approveFlightPlanItemsForTaskForStudents = async (req, res) => {
   try {
-    const response = await FlightPlanItem.approveFlightPlanItemsForTaskInSemesterForStudents( 
+    const response = await FlightPlanItem.approveFlightPlanItemsForTaskForStudents( 
       req.body.studentEmails.studentEmails,
       req.params.taskId,
-      req.params.semestersFromGrad,
     )
     res.send(response);
   } catch (err) {

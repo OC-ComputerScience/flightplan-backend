@@ -41,9 +41,9 @@ router.get(
 router.put("/:id", [authenticate], flightPlanItem.update);
 
 router.put(
-  "/task/:taskId/semestersFromGrad/:semestersFromGrad/approve",
+  "/task/:taskId/approve",
   [authenticate, isAdmin],
-  flightPlanItem.approveFlightPlanItemsForTaskInSemesterForStudents
+  flightPlanItem.approveFlightPlanItemsForTaskForStudents
 );
 
 router.put(
