@@ -59,7 +59,7 @@ exports.createNewStudentForUserId = async (userId) => {
         newColleagueData.Majors.forEach(async (major) => {
             const majorData = await Major.findForOCMajorId(major.Code);
             if (majorData) {
-                Student.addMajor(newStudent.id, majorData.id);
+                await Student.addMajor(newStudent.id, majorData.id);
             }
         })
 
@@ -79,12 +79,12 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
         if (!hasSameMajors(studentWithUserAndMajors.majors, newColleagueData.Majors)) {
             const majorDifferences = getMajorDifferences(studentWithUserAndMajors.majors, newColleagueData.Majors);
             majorDifferences.majorsToRemove.forEach(async (major) => {
-                Student.removeMajor(studentWithUserAndMajors.id, major.id);
+                await Student.removeMajor(studentWithUserAndMajors.id, major.id);
             })
             majorDifferences.majorsToAdd.forEach(async (major) => {
                 const majorData = await Major.findForOCMajorId(major.Code);
                 if (majorData?.id) {
-                    Student.addMajor(studentWithUserAndMajors.id, majorData.id);
+                    await Student.addMajor(studentWithUserAndMajors.id, majorData.id);
                 }
                 else {
                     console.error(`Major not found for OCMajorId: ${major.Code} Description: ${major.Description}`);
@@ -103,7 +103,7 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
 
             if (studentWithUserAndMajors.semestersFromGrad !== newSemestersFromGraduation && newSemestersFromGraduation != 0) {
                 const oldFlightPlan = await FlightPlan.getFlightPlanForStudentAndSemester(studentWithUserAndMajors.id, studentWithUserAndMajors.semestersFromGrad);
-                FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
+                await FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
             }
         }
     } catch (error) {
