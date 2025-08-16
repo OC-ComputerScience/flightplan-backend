@@ -103,7 +103,12 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
 
             if (studentWithUserAndMajors.semestersFromGrad !== newSemestersFromGraduation && newSemestersFromGraduation != 0) {
                 const oldFlightPlan = await FlightPlan.getFlightPlanForStudentAndSemester(studentWithUserAndMajors.id, studentWithUserAndMajors.semestersFromGrad);
-                await FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
+                if (oldFlightPlan?.id) {
+                    await FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
+                }
+                else {
+                    console.log(`${studentWithUserAndMajors.user.fullName}'s semesters from graduation has changed and is greater than 0 but has no previous flight plan to update.`);
+                }
             }
         }
     } catch (error) {
