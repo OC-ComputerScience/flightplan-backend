@@ -34,6 +34,10 @@ const FlightPlanItem = SequelizeInstance.define(
     optional: {
       type: Sequelize.BOOLEAN,
       defaultValue: false,
+    },
+    reviewed: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
     }
   },
   {

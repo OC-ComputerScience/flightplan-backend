@@ -121,7 +121,10 @@ exports.getPendingApprovals = async (
   const offset = (page - 1) * pageSize;
 
   // Build the where clause
-  const whereClause = { status: "Pending Review" };
+  const whereClause = {
+    status: { [Op.like]: '%Pending%' },
+    reviewed: false,
+  };
 
   // Add name filter if search query is provided
   if (searchQuery && searchQuery.trim() !== "") {

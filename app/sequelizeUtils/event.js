@@ -521,24 +521,32 @@ exports.markAttendance = async (eventId, studentIds) => {
         if (!experience) continue;
 
         if (eventStudent.attended) {
-          if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
+          // case - item is an attendance auto approve and the student has registered but not verified their completion
+          if (item.status === "Registered" && experience.submissionType === "Attendance - Auto Approve") {
+            await item.update({
+              status: "Awaiting Completion",
+              pointsEarned: 0,
+            });
+          }
+          // case - item is an attendance auto approve and the student has verified their completion
+          else if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
             });
-            let studentId = await studentServices.findById(studentId);
-            let userId = await userServices.findById(studentId.userId);
+            let studentObject = await studentServices.findById(studentId);
             
             await notificationServices.createNotification({      
               header: `${experience.name} Flight Plan Item Completion`,
               description: `You have received ${experience.points} points for completing ${experience.name}`,
               read: false,
-              userId: userId,
+              userId: studentObject.userId,
               sentBy: null
             });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
           }
+          // case - item is a reflection with attendance and the student has not uploaded their reflection
           else if (item.status !== "Complete" && 
             item.status !== "Pending Attendance" && 
             (experience.submissionType === "Attendance - Reflection - Review" || 
@@ -548,6 +556,7 @@ exports.markAttendance = async (eventId, studentIds) => {
               pointsEarned: 0,
             });
           }
+          // case - item is a document with attendance and the student has not uploaded their document
           else if (item.status !== "Complete" && 
             item.status !== "Pending Attendance" && 
             (experience.submissionType === "Attendance - Document - Review" || 
@@ -557,33 +566,52 @@ exports.markAttendance = async (eventId, studentIds) => {
               pointsEarned: 0,
             });
           }
+          // case - item is a reflection with attendance and the reflection has not been reivewed
+          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Reflection")) {
+            await item.update({
+              status: "Pending Review",
+              pointsEarned: 0,
+            });
+          }
+          // case - item is a document with attendance and the document has not been reivewed
+          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Document")) {
+            await item.update({
+              status: "Pending Review",
+              pointsEarned: 0,
+            });
+          }
+          // case - item requires attendance and all other requirements have been met
           else if (item.status === "Pending Attendance" && experience.submissionType.includes("Attendance")) {
             await item.update({
               status: "Complete",
               pointsEarned: experience.points,
             });
-            let studentId = await studentServices.findById(studentId);
-            let userId = await userServices.findById(studentId.userId);
+            let studentObject = await studentServices.findById(studentId);
+
             await notificationServices.createNotification({      
               header: `${experience.name} Flight Plan Item Completion`,
               description: `You have received ${experience.points} points for completing ${experience.name}`,
               read: false,
-              userId: userId,
+              userId: studentObject.userId,
               sentBy: null
             });
             await studentServices.updatePoints(studentId, experience.points);
             await kickOffBadgeAwarding(item.id);
           }
+          // case - item is either complete and an optional event or there is an event with the item but attendance is not required (only registration)
           else if (item.status === "Complete" || !item.status.includes("Attendance")) {
             continue;
           }
+          // case - fallback
           else { 
             console.error("Was not able to update item status for experience: ", experience.name);
             console.log("Item status: ", item.status);
             console.log("Item submission type: ", experience.submissionType);
 
           }
-        } else {
+        } 
+        // case - student is unmarked from attending the event, item will revert back
+        else {
           if (item.status === "Complete") {
             await item.update({
               status: "Registered",
