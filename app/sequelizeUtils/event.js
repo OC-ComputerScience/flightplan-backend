@@ -567,14 +567,14 @@ exports.markAttendance = async (eventId, studentIds) => {
             });
           }
           // case - item is a reflection with attendance and the reflection has not been reivewed
-          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Reflection")) {
+          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Reflection - Review")) {
             await item.update({
               status: "Pending Review",
               pointsEarned: 0,
             });
           }
           // case - item is a document with attendance and the document has not been reivewed
-          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Document")) {
+          else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Document - Review")) {
             await item.update({
               status: "Pending Review",
               pointsEarned: 0,
@@ -602,7 +602,7 @@ exports.markAttendance = async (eventId, studentIds) => {
           else if (item.status === "Complete" || !item.status.includes("Attendance")) {
             continue;
           }
-          // case - fallback
+          // case - fallback (should hopefully not reach here/ if it does, oof)
           else { 
             console.error("Was not able to update item status for experience: ", experience.name);
             console.log("Item status: ", item.status);
@@ -616,6 +616,7 @@ exports.markAttendance = async (eventId, studentIds) => {
             await item.update({
               status: "Registered",
               pointsEarned: 0,
+              reviewed: false,
             });
             await studentServices.updatePoints(studentId, -experience.points);
           }
