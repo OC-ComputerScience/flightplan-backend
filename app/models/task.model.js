@@ -40,7 +40,7 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.STRING(2000),
   },
   rationale: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(2000),
   },
   semestersFromGrad: {
     type: Sequelize.INTEGER,
@@ -56,7 +56,7 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.INTEGER,
   },
   instructions: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING(2000),
   },
   instructionsLinkDescription: {
     type: Sequelize.STRING

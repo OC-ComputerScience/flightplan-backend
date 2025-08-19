@@ -11,7 +11,7 @@ const Badge = SequelizeInstance.define("badge", {
     type: Sequelize.STRING(255),
   },
   description: {
-    type: Sequelize.STRING,
+    type: Sequelize.STRING (2000),
   },
   imageName: {
     type: Sequelize.STRING(255),
