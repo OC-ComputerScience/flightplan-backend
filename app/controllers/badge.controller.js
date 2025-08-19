@@ -54,8 +54,8 @@ exports.findAllBadgesForStudent = async (req, res) => {
 
 exports.findAllActiveBadges = async (req, res) => {
   await Badge.findAllActiveBadges(
-    req.body.page,
-    req.body.pageSize,
+    req.query.page,
+    req.query.pageSize,
   )
     .then((result) => {
       res.send(result);
@@ -71,8 +71,8 @@ exports.findAllActiveBadges = async (req, res) => {
 
 exports.findAllInactiveBadges = async (req, res) => {
   await Badge.findAllInactiveBadges(
-    req.body.page,
-    req.body.pageSize,
+    req.query.page,
+    req.query.pageSize,
   )
     .then((result) => {
       res.send(result);

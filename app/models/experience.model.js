@@ -19,8 +19,8 @@ const Experience = SequelizeInstance.define("experience", {
     ),
   },
   submissionType: {
-    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Attendance - Reflection", "Attendance - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Approved", "text", "files", "both", "attendance"),
-    default: "attendance",
+    type: Sequelize.ENUM('Attendance - Auto Approve', 'Attendance - Reflection - Auto Approve', 'Attendance - Document - Auto Approve', 'Attendance - Reflection - Review', 'Attendance - Document - Review', 'Reflection - Review', 'Reflection - Auto Approve', 'Upload Document - Review', 'Upload Document - Auto Approve', 'Self-Approved'),
+    
   },
   reflectionRequired: {
     type: Sequelize.BOOLEAN,
@@ -53,7 +53,7 @@ const Experience = SequelizeInstance.define("experience", {
     type: Sequelize.STRING(255),
   },
   rationale: {
-    type: Sequelize.STRING(255),
+    type: Sequelize.STRING(2000),
   },
   points: {
     type: Sequelize.INTEGER,
