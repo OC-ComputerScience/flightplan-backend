@@ -12,30 +12,47 @@ const exports = {};
 
 
 // Returns a paginated list of all badges, optionally filtered by a search query.
-exports.findAllBadges = async (page = 1, pageSize = 10, searchQuery = "") => {
-  page = parseInt(page, 10);
-  pageSize = parseInt(pageSize, 10);
+exports.findAllBadges = async (
+  page = 1,
+  pageSize = 10,
+  searchQuery = "",
+  filters = {}
+) => {
+  page = parseInt(page, 10) || 1;
+  pageSize = parseInt(pageSize, 10) || 10;
   const offset = (page - 1) * pageSize;
   const limit = pageSize;
-  const whereCondition = searchQuery
-    ? {
-        // Assuming you want to search by title or description (modify as needed
-        name: {
-          [Op.like]: `%${searchQuery}%`, // Search in the title
-        },
-      }
-    : {};
+  
+  const whereCondition = {};
+
+  if (searchQuery) {
+    whereCondition.name = { [Op.like]: `%${searchQuery}%` };
+  }
+
+  if (filters.status) {
+    whereCondition.status = filters.status;
+  }
+
+  if (filters.ruleType) {
+    whereCondition.ruleType = filters.ruleType;
+  }
+
+  let order = [['createdAt', 'DESC']];
+  if (filters.sortAttribute && filters.sortDirection) {
+    order = [[filters.sortAttribute, filters.sortDirection]];
+  }
 
   let badges = await Badge.findAll({
+    where: whereCondition,
+    order,
     offset,
     limit,
-    where: whereCondition, // Apply the search condition
   });
 
   badges = getFilesForBadges(badges);
 
   const count = await Badge.count({
-    where: whereCondition, // Apply the search condition to the count as well
+    where: whereCondition
   });
 
   const totalPages = Math.ceil(count / pageSize);

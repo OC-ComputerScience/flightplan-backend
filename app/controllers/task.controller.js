@@ -39,31 +39,41 @@ exports.findAll = async (req, res) => {
     pageSize,
     searchQuery,
     category,
-    taskType,
     schedulingType,
-    semestersFromGraduation,
+    submissionType,
+    semestersFromGrad,
     strengths,
+    status, // Add this line
     sortAttribute,
-    sortDirection,
+    sortDirection
   } = req.query;
 
-  await Task.findAllTasks(page, pageSize, searchQuery, {
-    category,
-    taskType,
-    schedulingType,
-    semestersFromGraduation,
-    strengths,
-    sortAttribute,
-    sortDirection,
+  await Task.findAllTasks(
+    page,
+    pageSize,
+    searchQuery,
+    {
+      category,
+      schedulingType,
+      submissionType,
+      semestersFromGrad: semestersFromGrad ? 
+        parseInt(semestersFromGrad, 10) : null,
+      strengths: strengths ? 
+        (Array.isArray(strengths) ? strengths : [strengths]) : null,
+      status, // Add this line
+      sortAttribute,
+      sortDirection
+    }
+  )
+  .then(data => {
+    res.send(data);
   })
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving tasks.",
-      });
+  .catch(err => {
+    console.error("Error retrieving tasks:", err);
+    res.status(500).send({
+      message: err.message || "Error retrieving tasks"
     });
+  });
 };
 
 exports.findAllOptionalForStudentId = async (req, res) => {

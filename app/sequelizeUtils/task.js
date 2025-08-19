@@ -8,10 +8,10 @@ const FlightPlan = db.flightPlan;
 const exports = {};
 
 exports.findAllTasks = async (
-  page,
-  pageSize,
+  page = 1,
+  pageSize = 10,
   searchQuery = "",
-  filters = {},
+  filters = {}
 ) => {
   const whereCondition = {};
 
@@ -20,79 +20,60 @@ exports.findAllTasks = async (
   }
 
   if (filters.category) {
-    whereCondition.category = { [Op.eq]: `${filters.category}` };
-  }
-
-  if (filters.taskType) {
-    whereCondition.taskType = { [Op.eq]: `${filters.taskType}` };
+    whereCondition.category = filters.category;
   }
 
   if (filters.schedulingType) {
-    whereCondition.schedulingType = { [Op.eq]: `${filters.schedulingType}` };
+    whereCondition.schedulingType = filters.schedulingType;
   }
 
   if (filters.submissionType) {
-    whereCondition.submissionType = { [Op.eq]: `${filters.submissionType}` };
+    whereCondition.submissionType = filters.submissionType;
   }
 
-  const direction =
-    filters?.sortDirection?.toUpperCase() === "DESC" ? "DESC" : "ASC";
-
-  if (
-    filters.semestersFromGraduation &&
-    filters.sortAttribute == "semestersFromGraduation"
-  ) {
-    if (direction == "ASC") {
-      whereCondition.semestersFromGraduation = {
-        [Op.lte]: `${filters.semestersFromGraduation}`,
-      };
-    } else {
-      whereCondition.semestersFromGraduation = {
-        [Op.gte]: `${filters.semestersFromGraduation}`,
-      };
-    }
+  if (filters.semestersFromGrad !== null) {  // Changed from semestersFromGraduation
+    whereCondition.semestersFromGrad = filters.semestersFromGrad;  // Changed both instances
   }
 
-  let order = [];
-
-  if (
-    filters.sortAttribute &&
-    filters.sortDirection &&
-    filters.sortAttribute != "semestersFromGraduation"
-  ) {
-    // Default to ascending order if direction is not provided
-    order = [[filters.sortAttribute, direction]];
+  if (filters.status) {
+    whereCondition.status = filters.status;
   }
 
-  let queryOptions = {};
+  let includeStrengths = [];
+  if (filters.strengths && filters.strengths.length > 0) {
+    includeStrengths = [{
+      model: db.strength,
+      where: {
+        id: {
+          [Op.in]: filters.strengths
+        }
+      },
+      required: true
+    }];
+  }
 
+  const queryOptions = {
+    where: whereCondition,
+    include: includeStrengths,
+    order: [['createdAt', 'DESC']]
+  };
+
+  if (filters.sortAttribute && filters.sortDirection) {
+    queryOptions.order = [[filters.sortAttribute, filters.sortDirection]];
+  }
+
+  // Add pagination
   if (page && pageSize) {
-    page = parseInt(page, 10);
-    pageSize = parseInt(pageSize, 10);
-    const offset = (page - 1) * pageSize;
-    const limit = pageSize;
-    queryOptions = {
-      offset,
-      limit,
-      where: whereCondition,
-      order,
-    };
-  } else {
-    queryOptions = {
-      where: whereCondition,
-      order,
-    };
+    queryOptions.offset = (parseInt(page, 10) - 1) * parseInt(pageSize, 10);
+    queryOptions.limit = parseInt(pageSize, 10);
   }
 
-  const tasks = await Task.findAll(queryOptions);
+  const { rows: tasks, count } = await Task.findAndCountAll(queryOptions);
 
-  const count = await Task.count({
-    where: whereCondition, // Apply the search condition to the count as well
-  });
-
-  const totalPages = Math.ceil(count / pageSize);
-
-  return { tasks, count: totalPages };
+  return {
+    tasks,
+    count: Math.ceil(count / pageSize)
+  };
 };
 
 exports.findAllActiveTasks = async () => {

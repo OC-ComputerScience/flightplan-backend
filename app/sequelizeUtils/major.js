@@ -12,6 +12,7 @@ exports.findAll = async (query) => {
     sortAttribute = "name",
     sortDirection = "ASC",
   } = query;
+
   const offset = (Number(page) - 1) * Number(pageSize);
   const limit = Number(pageSize);
 
@@ -27,10 +28,7 @@ exports.findAll = async (query) => {
     order: [[sortAttribute, sortDirection]],
   });
 
-  const count = await Major.count({
-    where,
-  });
-
+  const count = await Major.count({ where });
   const totalPages = Math.ceil(count / pageSize);
 
   return { majors, count: totalPages };
