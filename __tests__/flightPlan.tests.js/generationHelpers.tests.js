@@ -63,7 +63,7 @@ describe("getAllCompletedFlightPlanItemsForStudent", () => {
         {
           flightPlanItems: [
             { id: 3, status: "Complete" },
-            { id: 4, status: "Pending" },
+            { id: 4, status: "Pending Review" },
           ],
         },
       ],
