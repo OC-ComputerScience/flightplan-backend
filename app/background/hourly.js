@@ -7,11 +7,9 @@ const exports = {};
 // From: https://www.digitalocean.com/community/tutorials/nodejs-cron-jobs-by-examples
 
 exports.hourlyTasks =  () => {
-  // for prod, runs at ever hour at 05 minute past the hour.
-  cron.schedule("05 * * * *", async function () {
-  // for testing, runs every minute
-  //   cron.schedule("* * * * *", async function () {
-    console.log("Hourly Task is running at 05 minutes past the hour");
+  // for prod, runs every minute.
+    cron.schedule("* * * * *", async function () {
+    console.log("Minutely Task is running at 01 minute since the last task");
     checkForPastEvents();
   
   });

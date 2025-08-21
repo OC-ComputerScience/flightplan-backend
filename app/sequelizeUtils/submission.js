@@ -19,7 +19,7 @@ exports.create = async (submissionData) => {
     });
     if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
-      { status: "Pending" },
+      { status: "Pending Review" },
       { where: { id: submission.flightPlanItemId }, transaction: t },
     );
   }
@@ -62,7 +62,7 @@ exports.bulkCreate = async (submissionData) => {
 
     if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
-      { status: "Pending" },
+      { status: "Pending Review" },
       { where: { id: submissionData[0].flightPlanItemId }, transaction: t },
     );
   }
