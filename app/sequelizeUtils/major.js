@@ -40,6 +40,14 @@ exports.findOne = async (id) => {
   return await Major.findByPk(id);
 };
 
+exports.findForOCMajorId = async (OCMajorId) => {
+  return await Major.findOne({
+    where: {
+      OCMajorId: OCMajorId
+    }
+  })
+}
+
 exports.create = async (majorData) => {
   // Check for existing major with similar name or code (case-insensitive)
   const existingMajor = await Major.findOne({
