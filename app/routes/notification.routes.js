@@ -34,6 +34,8 @@ router.put(
   notification.update,
 );
 
+router.delete("/bulk", [authenticate], notification.bulkDelete);
+
 // Delete a Notification with id
 router.delete("/:id", [authenticate], notification.delete);
 

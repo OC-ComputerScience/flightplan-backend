@@ -127,4 +127,29 @@ exports.delete = async (req, res) => {
     });
 };
 
+exports.bulkDelete = async (req, res) => {
+  try {
+    const { notificationIds } = req.body;
+
+    if (!notificationIds || !Array.isArray(notificationIds)) {
+      return res.status(400).json({
+        message: "Please provide an array of notification IDs",
+      });
+    }
+
+    const result = await Notification.bulkDelete(notificationIds);
+
+    return res.status(200).json({
+      message: "Notifications successfully deleted",
+      count: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message:
+        error.message ||
+        "Some error occurred while bulk deleting notifications",
+    });
+  }
+};
+
 export default exports;
