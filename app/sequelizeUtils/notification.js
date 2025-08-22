@@ -86,4 +86,16 @@ exports.deleteNotification = async (notificationId) => {
   return await Notification.destroy({ where: { id: notificationId } });
 };
 
+exports.bulkDelete = async (notificationIds) => {
+  try {
+    return await Notification.destroy({
+      where: {
+        id: notificationIds,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default exports;
