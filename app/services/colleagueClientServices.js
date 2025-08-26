@@ -82,7 +82,8 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
                 await Student.removeMajor(studentWithUserAndMajors.id, major.id);
             })
             majorDifferences.majorsToAdd.forEach(async (major) => {
-                const majorData = await Major.findForOCMajorId(major.Code);
+                console.log("Adding major:", major);
+                const majorData = await Major.findForOCMajorId(major);
                 if (majorData?.id) {
                     await Student.addMajor(studentWithUserAndMajors.id, majorData.id);
                 }
@@ -107,7 +108,10 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
                     await FlightPlan.updateOldFlightPlan(oldFlightPlan.id);
                 }
                 else {
-                    console.log(`${studentWithUserAndMajors.user.fullName}'s semesters from graduation has changed and is greater than 0 but has no previous flight plan to update.`);
+                    console.log("generate new flight plan");
+
+                    await FlightPlan.generateFlightPlan(studentWithUserAndMajors.id)
+                    
                 }
             }
         }
