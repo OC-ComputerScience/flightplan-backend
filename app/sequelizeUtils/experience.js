@@ -35,6 +35,10 @@ exports.findAllExperiences = async (
     whereCondition.status = filters.status;
   }
 
+  if (filters.semestersFromGrad) {
+    whereCondition.semestersFromGrad = filters.semestersFromGrad;
+  }
+
   // Add sorting
   let order = [['createdAt', 'DESC']];
   if (filters.sortAttribute && filters.sortDirection) {

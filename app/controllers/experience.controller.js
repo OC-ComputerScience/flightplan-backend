@@ -45,6 +45,7 @@ exports.findAll = async (req, res) => {
     category,
     schedulingType,
     submissionType,
+    semestersFromGrad,
     status,
     sortAttribute,
     sortDirection
@@ -58,6 +59,7 @@ exports.findAll = async (req, res) => {
       category,
       schedulingType,
       submissionType,
+      semestersFromGrad,
       status,
       sortAttribute,
       sortDirection
