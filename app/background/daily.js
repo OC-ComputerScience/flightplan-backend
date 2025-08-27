@@ -14,15 +14,18 @@ exports.dailyTasks = () => {
   // cron.schedule("* * * * *", async function () {
     console.log("Running daily tasks at 11:59 pm");
     updateCurrentStudents();
+
   });
 };
 
 // checks for updates for all current students (graduation date after today)
 async function updateCurrentStudents() {
+  console.log("Checking for updates for all current students");
   let allCurrentStudents = await Student.findAllCurrentStudentsWithUserAndMajors();
 
   // Checks each student for updates
   allCurrentStudents.forEach(async (student) => {
+
     colleagueServices.checkUpdateStudentWithColleagueData(student);
   })
 }
