@@ -221,6 +221,23 @@ exports.update = async (req, res) => {
   }
 };
 
+exports.approveFlightPlanItemsForTaskForStudents = async (req, res) => {
+  try {
+    const response = await FlightPlanItem.approveFlightPlanItemsForTaskForStudents( 
+      req.body.studentEmails.studentEmails,
+      req.params.taskId,
+    )
+    res.send(response);
+  } catch (err) {
+    res.status(500).send({
+      message:
+        err.message ||
+        "Some error occurred while approving the task for students.",
+    });
+    console.log("Error approving flight plan item: " + err);
+  }
+};
+
 exports.approveFlightPlanItem = async (req, res) => {
   try {
     const response = await FlightPlanItem.approveFlightPlanItem(req.params.id);

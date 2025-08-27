@@ -15,6 +15,9 @@ import FileHelpers from "../utilities/fileStorage.helper.js";
 import kickOffBadgeAwarding from "../utilities/badgeAward.helpers.js";
 import sequelize from "../sequelizeUtils/sequelizeInstance.js";
 // Module Exports Placeholder
+
+import semesterServices from "../sequelizeUtils/semester.js";
+
 const exports = {};
 
 exports.findAllFlightPlanItems = async (page = 1, pageSize = 10) => {
@@ -204,7 +207,74 @@ exports.updateFlightPlanItem = async (flightPlanItemData, flightPlanItemId) => {
   });
 };
 
-exports.approveFlightPlanItem = async (flightPlanItemId) => {
+exports.approveFlightPlanItemsForTaskForStudents = async (
+  studentEmails,
+  taskId,
+) => {
+  let failedEmailMessages = [];
+  let successfullEmailMessages = [];
+
+  const currentSemester = await semesterServices.getCurrentSemester();
+  if (!currentSemester?.id) {
+    throw new Error("Current semester not found");
+  }
+
+  for (const email of studentEmails) {
+    try {
+      const user = await User.findOne({
+        where: { email },
+        include: [{ model: Student, as: "student" }],
+      });
+      checkIfExists(user, `User`, email);
+
+      const student = user?.student;
+      checkIfExists(student, `Student`, email);
+      const flightPlan = await FlightPlan.findOne({
+        where: {
+          studentId: student.id,
+          semesterId: currentSemester.id,
+        },
+      });
+      checkIfExists(flightPlan, `Flight Plan`, email, `Flight Plan not found for ${email} in current semester`);
+
+      const flightPlanItem = await FlightPlanItem.findOne({
+        where: {
+          flightPlanId: flightPlan.id,
+          taskId: taskId,
+        },
+      });
+      checkIfExists(flightPlanItem, `Flight Plan Item`, email, `Flight Plan Item not found for ${email} in current semester`);
+
+      if (flightPlanItem?.status !== "Complete") {
+        await approveFlightPlanItem(flightPlanItem.id);
+        successfullEmailMessages.push({ email, message: `Task successfully approved for ${email}` });
+      } else {
+        throw new Error(`Flight plan item already approved for ${email} in current semester`);
+      }
+    } catch (error) {
+      failedEmailMessages.push({ email, message: error.message });
+    }
+  }
+  if (failedEmailMessages.length > 0) {
+    const errorMessages = [...failedEmailMessages, ...successfullEmailMessages];
+    throw new Error(`Failed to approve flight plan items for emails:\n${errorMessages.map((emailObject) => emailObject.message).join("\n")}`);
+  }
+  return { message: "Flight plan items approved successfully" };
+}
+
+const checkIfExists = (item, itemName, owner = null, overrideMessage = null) => {
+  if (item === null || item === undefined) {
+    if (overrideMessage) throw Error(overrideMessage);
+    throw Error(`${itemName} not found ${owner ? "for " + owner : ""}`);
+  }
+  return true;
+}
+
+exports.approveFlightPlanItem = async (flightPlanItemid) => {
+  return await approveFlightPlanItem(flightPlanItemid);
+}
+
+const approveFlightPlanItem = async (flightPlanItemId) => {
   const t = await sequelize.transaction();
   try {
     await FlightPlanItem.update(
