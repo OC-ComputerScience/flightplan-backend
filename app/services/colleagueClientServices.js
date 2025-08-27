@@ -46,6 +46,7 @@ exports.createNewStudentForUserId = async (userId) => {
         const user = await User.findById(userId);
         const email = user.email;
         const newColleagueData = await getStudentForEmail(email);
+        console.log("Creating new student:", newColleagueData);
         const studentData = {
             graduationDate: newColleagueData.GraduationDate,
             semestersFromGrad: calculateSemestersFromGraduation(newColleagueData.GraduationDate),
