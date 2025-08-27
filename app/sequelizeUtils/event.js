@@ -44,6 +44,18 @@ exports.findAllEvents = async (
     whereCondition.location = { [Op.like]: `%${filters.location}%` };
   }
 
+  if (filters.status) {
+    whereCondition.status = filters.status;
+  }
+
+  if (filters.attendanceType) {
+    whereCondition.attendanceType = filters.attendanceType;
+  }
+
+  if (filters.registrationType) {
+    whereCondition.registration = filters.registrationType;
+  }
+
   let order = [];
 
   if (filters.sortAttribute && filters.sortDirection) {

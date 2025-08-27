@@ -61,6 +61,8 @@ exports.findAll = async (req, res) => {
     endDate,
     location,
     strengths,
+    attendanceType,
+    registrationType,
     sortAttribute,
     sortDirection,
   } = req.query;
@@ -69,6 +71,8 @@ exports.findAll = async (req, res) => {
     endDate,
     location,
     strengths,
+    attendanceType,
+    registrationType,
     sortAttribute,
     sortDirection,
   })
