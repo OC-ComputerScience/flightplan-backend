@@ -349,15 +349,15 @@ exports.getCheckInToken = async (req, res) => {
 exports.checkInStudent = async (req, res) => {
   try {
     const { eventId, studentId } = req.params;
-    const { token } = req.body;
+    const { eventCheckInToken } = req.body;
 
-    if (!token) {
+    if (!eventCheckInToken) {
       return res.status(400).send({
         message: "Check-in token is required",
       });
     }
 
-    const checkIn = await Event.checkInStudent(eventId, studentId, token);
+    const checkIn = await Event.checkInStudent(eventId, studentId, eventCheckInToken);
     res.send({
       message: "Successfully checked in to event",
       checkIn,
