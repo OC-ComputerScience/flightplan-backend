@@ -49,7 +49,7 @@ const Task = SequelizeInstance.define("task", {
     type: Sequelize.INTEGER,
   },
   submissionType: {
-    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Approved", "Auto Complete - Major", "Auto Complete - LinkedIn", "Auto Complete - Handshake", "Auto-Complete - Strengths"),
+    type: Sequelize.ENUM("Reflection - Review", "Reflection - Auto Approve", "Upload Document - Review", "Upload Document - Auto Approve", "Upload Document & Reflection - Review",  "Upload Document & Reflection - Auto Approve", "Manual Review", "Self-Approved", "Auto Complete - Major", "Auto Complete - LinkedIn", "Auto Complete - Handshake", "Auto-Complete - Strengths", "Admin CSV Upload"),
     defaultValue: "Manual Review",
   },
   points: {

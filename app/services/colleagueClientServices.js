@@ -12,8 +12,13 @@ exports.getStudentForEmail = async (email) => {
 }
 
 const getStudentForEmail = async (email) => {
+    let attempt = 0;
+    let retries = 3
+    while (attempt < retries) {
     try {
+        attempt++;
         const response = await axios.get(`${BASE_URL}/CareerServicesStudentProfile/`, {
+            timeout: 3000, // 3 seconds timeout for this request
             params: {
                 userString: email
             }
@@ -21,10 +26,22 @@ const getStudentForEmail = async (email) => {
         return response.data;
     }
     catch (error) {
-        console.error("Error calling Colleague API:", error.response?.data || error.message);
-        throw error;
+        if (axios.isAxiosError(error)) {
+            if (error.code === 'ECONNABORTED') {
+                console.error("Time out Colleague API:", error.response?.data || error.message);
+               
+            } else {
+                console.error('Axios Colleague: APIerror:', error.message);
+            }
+            } else {
+                console.error('Non-Axios Colleague API error:', error);
+            }
+        
     }
+}
 };
+
+
 
 exports.getStudentForOCStudentId = async (ocStudentId) => {
     try {
@@ -46,6 +63,7 @@ exports.createNewStudentForUserId = async (userId) => {
         const user = await User.findById(userId);
         const email = user.email;
         const newColleagueData = await getStudentForEmail(email);
+        console.log("Creating new student:", newColleagueData);
         const studentData = {
             graduationDate: newColleagueData.GraduationDate,
             semestersFromGrad: calculateSemestersFromGraduation(newColleagueData.GraduationDate),
@@ -57,7 +75,7 @@ exports.createNewStudentForUserId = async (userId) => {
 
         // create majors for student
         newColleagueData.Majors.forEach(async (major) => {
-            const majorData = await Major.findForOCMajorId(major.Code);
+            const majorData = await Major.findForOCMajorId(major);
             if (majorData) {
                 await Student.addMajor(newStudent.id, majorData.id);
             }
