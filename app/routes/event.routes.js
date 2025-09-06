@@ -50,6 +50,9 @@ router.get(
 // Mark attendance for students at an event
 router.post("/:id/attend", [authenticate], event.markAttendance);
 
+// Toggle attendance for students at an event
+router.post("/:id/toggleAttend", [authenticate], event.toggleAttendance);
+
 // Retrieve registered students for an event
 router.get(
   "/:id/registered-students",
