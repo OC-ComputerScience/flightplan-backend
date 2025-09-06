@@ -200,6 +200,32 @@ exports.getAttendingEventsForStudent = async (req, res) => {
   }
 };
 
+exports.toggleAttendance = async (req, res) => {
+  const eventId = req.params.id;
+  const studentIds = req.body.studentIds;
+
+  if (!eventId || !Array.isArray(studentIds) || studentIds.length === 0) {
+    console.error("Invalid payload received:", req.body);
+    return res.status(400).send({ message: "Invalid eventId or studentIds." });
+  }
+
+  try {
+    console.log(
+      `Marking attendance for eventId: ${eventId}, studentIds:`,
+      studentIds,
+    );
+
+    const data = await Event.toggleAttendance(eventId, studentIds);
+   
+    res.send(data);
+  } catch (err) {
+    console.error("Error marking attendance:", err);
+    res
+      .status(500)
+      .send({ message: "Error marking attendance.", error: err.message });
+  }
+};
+
 exports.markAttendance = async (req, res) => {
   const eventId = req.params.id;
   const studentIds = req.body.studentIds;
