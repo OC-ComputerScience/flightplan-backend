@@ -13,7 +13,7 @@ exports.getStudentForEmail = async (email) => {
 
 const getStudentForEmail = async (email) => {
     let attempt = 0;
-    let retries = 3
+    let retries = 5;
     while (attempt < retries) {
     try {
         attempt++;
@@ -26,6 +26,8 @@ const getStudentForEmail = async (email) => {
         return response.data;
     }
     catch (error) {
+        if (attempt < retries) {
+   
         if (axios.isAxiosError(error)) {
             if (error.code === 'ECONNABORTED') {
                 console.error("Time out Colleague API:", error.response?.data || error.message);
@@ -36,7 +38,12 @@ const getStudentForEmail = async (email) => {
             } else {
                 console.error('Non-Axios Colleague API error:', error);
             }
-        
+        }
+        else {
+            console.error("Out of retires calling Colleague API:", error.response?.data || error.message);
+            throw error;
+        }
+
     }
 }
 };
@@ -112,6 +119,7 @@ exports.checkUpdateStudentWithColleagueData = async (studentWithUserAndMajors) =
         }
 
         // check if graduation data needs an update
+        
         if (!isSameDay(studentWithUserAndMajors.graduationDate, newColleagueData.GraduationDate)) {
             const newSemestersFromGraduation = calculateSemestersFromGraduation(newColleagueData.GraduationDate);
             const updatedStudentData = {
