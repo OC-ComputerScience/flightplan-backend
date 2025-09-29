@@ -31,15 +31,15 @@ exports.findAllRewards = async (
   }
 
   if (filters.minPoints) {
-    whereCondition.pointCost = {
-      ...whereCondition.pointCost,
+    whereCondition.points = {
+      ...whereCondition.points,
       [Op.gte]: filters.minPoints,
     };
   }
 
   if (filters.maxPoints) {
-    whereCondition.pointCost = {
-      ...whereCondition.pointCost,
+    whereCondition.points = {
+      ...whereCondition.points,
       [Op.lte]: filters.maxPoints,
     };
   }
