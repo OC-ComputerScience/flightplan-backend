@@ -551,6 +551,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Awaiting Completion",
             pointsEarned: 0,
+            eventId:eventStudent.eventId,
           });
         }
         // case - item is an attendance auto approve and the student has verified their completion
@@ -558,6 +559,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Complete",
             pointsEarned: experience.points,
+            eventId:eventStudent.eventId,
           });
           let studentObject = await studentServices.findById(studentId);
           
@@ -579,6 +581,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Awaiting Reflection",
             pointsEarned: 0,
+            eventId:eventStudent.eventId,
           });
         }
         // case - item is a document with attendance and the student has not uploaded their document
@@ -589,6 +592,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Awaiting Document",
             pointsEarned: 0,
+            eventId:eventStudent.eventId,
           });
         }
         // case - item is a reflection with attendance and the reflection has not been reivewed
@@ -596,6 +600,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Pending Review",
             pointsEarned: 0,
+            eventId:eventStudent.eventId,
           });
         }
         // case - item is a document with attendance and the document has not been reivewed
@@ -603,6 +608,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Pending Review",
             pointsEarned: 0,
+            eventId:eventStudent.eventId,
           });
         }
         // case - item requires attendance and all other requirements have been met
@@ -610,6 +616,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await item.update({
             status: "Complete",
             pointsEarned: experience.points,
+            eventId:eventStudent.eventId,
           });
           let studentObject = await studentServices.findById(studentId);
 
@@ -634,6 +641,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
             "name": `${experience.name} (Optional)`,
             "optional": true,
             "reviewed": true,  
+            "eventId":eventStudent.eventId,
           });
           let studentObject = await studentServices.findById(studentId);
 
