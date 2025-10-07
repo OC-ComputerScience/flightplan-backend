@@ -59,6 +59,7 @@ exports.findAll = async (req, res) => {
     searchQuery,
     startDate,
     endDate,
+    status,
     location,
     strengths,
     attendanceType,
@@ -69,6 +70,7 @@ exports.findAll = async (req, res) => {
   await Event.findAllEvents(page, pageSize, searchQuery, {
     startDate,
     endDate,
+    status,
     location,
     strengths,
     attendanceType,
