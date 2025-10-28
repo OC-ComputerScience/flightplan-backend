@@ -38,9 +38,14 @@ exports.generateFlightPlan = async (studentId) => {
 
   const student = await Student.findByPk(studentId);
 
-  const studentSemesterFromGraduation = student.get({ plain: true }).semestersFromGrad;
+  var studentSemesterFromGraduation = student.get({ plain: true }).semestersFromGrad;
   if (!(studentSemesterFromGraduation > 0)) {
     throw Error("Student Already Graduated")
+  }
+
+  
+  if (studentSemesterFromGraduation > 7) {
+    studentSemesterFromGraduation = 7;
   }
 
   const currentFlightPlan = (await getFlightPlanForStudentAndSemester(studentId, studentSemesterFromGraduation));
@@ -63,8 +68,9 @@ exports.generateFlightPlan = async (studentId) => {
   const flightPlanData = {
     studentId,
     semesterId: currentSemester.id,
-    semestersFromGrad: student.semestersFromGrad,
+    semestersFromGrad: studentSemesterFromGraduation,
   };
+  console.log(`Updating flight plan with data: `, flightPlanData);
   const flightPlan = await FlightPlan.create(flightPlanData);
 
   const flightPlanItems = await getFlightPlanItemsForNewFlightPlan(
