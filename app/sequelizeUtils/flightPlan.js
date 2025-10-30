@@ -43,11 +43,6 @@ exports.generateFlightPlan = async (studentId) => {
     throw Error("Student Already Graduated")
   }
 
-  
-  if (studentSemesterFromGraduation > 7) {
-    studentSemesterFromGraduation = 7;
-  }
-
   const currentFlightPlan = (await getFlightPlanForStudentAndSemester(studentId, studentSemesterFromGraduation));
   if (currentFlightPlan?.id) {
     throw Error("Student's flight plan has already been generated for this semester.")
