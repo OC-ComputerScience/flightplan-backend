@@ -6,7 +6,7 @@ import mime from "mime-types";
 import { v4 as uuidv4 } from "uuid";
 import { fileURLToPath } from "url";
 
-const maxSize = 2 * 1024 * 1024;
+const maxSize = 7 * 1024 * 1024;
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename);
