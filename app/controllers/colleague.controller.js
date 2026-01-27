@@ -6,6 +6,9 @@ const exports = {};
 exports.getStudentForEmail = async (req, res) => {
   await Colleague.getStudentForEmail(req.query.email)
     .then((result) => {
+      if (result.semestersFromGrad > 7) {
+        result.semestersFromGrad = 7;
+      }
       res.send(result);
     })
     .catch((err) => {
@@ -20,6 +23,9 @@ exports.getStudentForEmail = async (req, res) => {
 exports.getStudentForOCStudentId = async (req, res) => {
   await Colleague.getStudentForOCStudentId(req.query.OCStudentId)
     .then((result) => {
+      if (result.semestersFromGrad > 7) {
+        result.semestersFromGrad = 7;
+      }
       res.send(result);
     })
     .catch((err) => {
@@ -34,6 +40,9 @@ exports.getStudentForOCStudentId = async (req, res) => {
 exports.createNewStudentForUserId = async (req, res) => {
   await Colleague.createNewStudentForUserId(req.params.id)
     .then((result) => {
+      if (result.semestersFromGrad > 7) {
+        result.semestersFromGrad = 7;
+      }
       res.send(result);
     })
     .catch((err) => {
@@ -49,6 +58,9 @@ exports.checkUpdateStudentWithColleagueDataForStudentId = async (req, res) => {
   const studentWithUserAndMajors = await Student.findByIdWithUserAndMajors(req.params.id);
   await Colleague.checkUpdateStudentWithColleagueData(studentWithUserAndMajors)
     .then((result) => {
+      if (result.semestersFromGrad > 7) {
+        result.semestersFromGrad = 7;
+      }
       res.send(result);
     })
     .catch((err) => {

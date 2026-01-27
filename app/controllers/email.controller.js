@@ -4,10 +4,11 @@ export const sendNotification = async (req, res) => {
   try {
     const from = 'careerservices@oc.edu';
 
+    const { to, subject, body } = req.body;
+    
     // for testing on dev - JS 7/7/2025
-    // const { to, subject, body } = req.body;
-    const { subject, body } = req.body;
-    const to =  'j.stilling@eagles.oc.edu';
+    // const { subject, body } = req.body;
+    // const to =  'j.stilling@eagles.oc.edu';
 
     const cc = null;
     
