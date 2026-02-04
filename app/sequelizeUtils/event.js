@@ -704,6 +704,98 @@ exports.markAttendance = async (eventId, studentIds) => {
   }
 };
 
+
+exports.importAttendance = async (attendanceData) => {
+  const results = {
+    success: [],
+    failed: [],
+  };
+
+  const processedEmails = new Set(); // eslint-disable-line no-undef
+
+  for (const record of attendanceData) {
+    try {
+      if (processedEmails.has(record.email)) continue;
+      processedEmails.add(record.email);
+
+      // Find user by email
+      const user = await db.user.findOne({
+        where: { email: record.email },
+        include: [{ model: db.student, as: "student" }],
+      });
+
+      if (!user || !user.student) {
+        results.failed.push({
+          email: record.email,
+          reason: "User not found or is not a student",
+        });
+        continue;
+      }
+
+      const studentId = user.student.id;
+
+      // Get the event and its experiences
+      const event = await db.event.findByPk(record.eventId, {
+        include: [
+          {
+            model: db.experience,
+            as: "experiences",
+            through: { attributes: [] },
+          },
+        ],
+      });
+
+      if (!event) {
+        results.failed.push({ email: record.email, reason: "Event not found" });
+        continue;
+      }
+
+      const eventExperienceIds = event.experiences.map((exp) => exp.id);
+
+      // Ensure student is registered
+      let eventStudent = await EventStudents.findOne({
+        where: {
+          eventId: record.eventId,
+          studentId,
+        },
+      });
+
+      if (!eventStudent) {
+        eventStudent = await EventStudents.create({
+          eventId: record.eventId,
+          studentId,
+          attended: true,
+          recordedTime: new Date(record.checkedIn),
+        });
+      } else {
+        await eventStudent.update({
+          studentId: studentId,
+          attended: true,
+          recordedTime: new Date(record.checkedIn),
+        });
+      }
+
+      // Fetch flight plan items for student
+      const flightPlan = await db.flightPlan.findOne({ where: { studentId: studentId } });
+      //const flightPlanIds = flightPlans.map((fp) => fp.id);
+      
+      const flightPlanItems = await db.flightPlanItem.findAll({
+        where: {
+          flightPlanId: flightPlan.id,
+          experienceId: eventExperienceIds[0],
+        },
+      });
+      await attend(flightPlanItems, event, eventStudent, studentId)
+
+      results.success.push({ email: record.email, studentId });
+    } catch (error) {
+      results.failed.push({ email: record.email, reason: error.message });
+    }
+  }
+
+  return results;
+};
+
 // Helper function used in both markAttendance and importAttendance to accurately update attendance correctly.
 const attend = async (flightPlanItems, eventWithExperiences, eventStudent, studentId) => {
   for (const experience of eventWithExperiences.experiences) {
@@ -716,6 +808,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
       if (eventStudent.attended) {
         // case - item is an attendance auto approve and the student has registered but not verified their completion
         if (item.status === "Registered" && experience.submissionType === "Attendance - Auto Approve") {
+          console.log("815")
           await item.update({
             status: "Awaiting Completion",
             pointsEarned: 0,
@@ -724,6 +817,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
         }
         // case - item is an attendance auto approve and the student has verified their completion
         else if (item.status !== "Complete" && experience.submissionType === "Attendance - Auto Approve") {
+          console.log("824")
           await item.update({
             status: "Complete",
             pointsEarned: experience.points,
@@ -746,6 +840,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           item.status !== "Pending Attendance" && 
           (experience.submissionType === "Attendance - Reflection - Review" || 
             experience.submissionType === "Attendance - Reflection - Auto Approve")) {
+          console.log("847")
           await item.update({
             status: "Awaiting Reflection",
             pointsEarned: 0,
@@ -757,6 +852,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           item.status !== "Pending Attendance" && 
           (experience.submissionType === "Attendance - Document - Review" || 
             experience.submissionType === "Attendance - Document - Auto Approve")) {
+          console.log("861")
           await item.update({
             status: "Awaiting Document",
             pointsEarned: 0,
@@ -765,6 +861,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
         }
         // case - item is a reflection with attendance and the reflection has not been reivewed
         else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Reflection - Review")) {
+          console.log("873")
           await item.update({
             status: "Pending Review",
             pointsEarned: 0,
@@ -773,6 +870,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
         }
         // case - item is a document with attendance and the document has not been reivewed
         else if (item.status === "Pending Attendance" && !item.reviewed && experience.submissionType.includes("Attendance - Document - Review")) {
+          console.log("885")
           await item.update({
             status: "Pending Review",
             pointsEarned: 0,
@@ -781,6 +879,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
         }
         // case - item requires attendance and all other requirements have been met
         else if (item.status === "Pending Attendance" && experience.submissionType.includes("Attendance")) {
+          console.log("897")
           await item.update({
             status: "Complete",
             pointsEarned: experience.points,
@@ -798,8 +897,9 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await studentServices.updatePoints(studentId, experience.points);
           await kickOffBadgeAwarding(item.id);
         }
-        // case - this is the last item and it is complete, we need to create an optional flightPLanExperience to still add points for this event
+        // case - this is the last item and it is complete, we need to create an optional flightPlanExperience to still add points for this event
         else if (item.status === "Complete" && isLast) {
+          console.log("921")
           flightPlanItemServices.createFlightPlanItem({
             "flightPlanId": item.flightPlanId,
             "experienceId": experience.id,
@@ -823,12 +923,14 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
           await studentServices.updatePoints(studentId, experience.points);
           await kickOffBadgeAwarding(item.id);
         }
-        // case - item is either complete and an optional event or there is an event with the item but attendance is not required (only registration)
+        // case - item is either complete and is an optional event or there is an event with the item but attendance is not required (only registration)
         else if (item.status === "Complete" || !item.status.includes("Attendance")) {
+          console.log(item.status)
           continue;
         }
         // case - fallback (should hopefully not reach here/ if it does, oof)
         else { 
+          console.log('oof')
           console.error("Was not able to update item status for experience: ", experience.name);
           console.log("Item status: ", item.status);
           console.log("Item submission type: ", experience.submissionType);
@@ -837,6 +939,7 @@ const attend = async (flightPlanItems, eventWithExperiences, eventStudent, stude
       } 
       // case - student is unmarked from attending the event, item will revert back
       else {
+        console.log(943)
         if (item.status === "Complete") {
           await item.update({
             status: "Registered",
@@ -958,97 +1061,6 @@ exports.checkInStudent = async (eventId, studentId, token) => {
   });
 
   return checkIn;
-};
-
-exports.importAttendance = async (attendanceData) => {
-  const results = {
-    success: [],
-    failed: [],
-  };
-
-  const processedEmails = new Set(); // eslint-disable-line no-undef
-
-  for (const record of attendanceData) {
-    try {
-      if (processedEmails.has(record.email)) continue;
-      processedEmails.add(record.email);
-
-      // Find user by email
-      const user = await db.user.findOne({
-        where: { email: record.email },
-        include: [{ model: db.student, as: "student" }],
-      });
-
-      if (!user || !user.student) {
-        results.failed.push({
-          email: record.email,
-          reason: "User not found or is not a student",
-        });
-        continue;
-      }
-
-      const studentId = user.student.id;
-
-      // Get the event and its experiences
-      const event = await db.event.findByPk(record.eventId, {
-        include: [
-          {
-            model: db.experience,
-            as: "experiences",
-            through: { attributes: [] },
-          },
-        ],
-      });
-
-      if (!event) {
-        results.failed.push({ email: record.email, reason: "Event not found" });
-        continue;
-      }
-
-      const eventExperienceIds = event.experiences.map((exp) => exp.id);
-
-      // Ensure student is registered
-      let eventStudent = await EventStudents.findOne({
-        where: {
-          eventId: record.eventId,
-          studentId,
-        },
-      });
-
-      if (!eventStudent) {
-        eventStudent = await EventStudents.create({
-          eventId: record.eventId,
-          studentId,
-          attended: true,
-          recordedTime: new Date(record.checkedIn),
-        });
-      } else {
-        await eventStudent.update({
-          attended: true,
-          recordedTime: new Date(record.checkedIn),
-        });
-      }
-
-      // Fetch flight plan items for student
-      const flightPlans = await db.flightPlan.findAll({ where: { studentId } });
-      const flightPlanIds = flightPlans.map((fp) => fp.id);
-
-      const flightPlanItems = await db.flightPlanItem.findAll({
-        where: {
-          flightPlanId: { [Op.in]: flightPlanIds },
-          experienceId: { [Op.in]: eventExperienceIds },
-        },
-      });
-
-      attend(flightPlanItems, event, eventStudent, studentId)
-
-      results.success.push({ email: record.email, studentId });
-    } catch (error) {
-      results.failed.push({ email: record.email, reason: error.message });
-    }
-  }
-
-  return results;
 };
 
 exports.getEventsForExperience = async (experienceId) => {
