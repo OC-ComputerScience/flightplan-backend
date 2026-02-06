@@ -81,12 +81,12 @@ exports.createNewStudentForUserId = async (userId) => {
         const newStudent = await Student.create(studentData);
 
         // create majors for student
-        newColleagueData.Majors.forEach(async (major) => {
+        for (const major of newColleagueData.Majors) {
             const majorData = await Major.findForOCMajorId(major);
             if (majorData) {
                 await Student.addMajor(newStudent.id, majorData.id);
             }
-        })
+        }
 
         return newStudent;
     }
