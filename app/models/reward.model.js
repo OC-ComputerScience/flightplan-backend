@@ -11,7 +11,7 @@ const Reward = SequelizeInstance.define("reward", {
     type: Sequelize.STRING(255),
   },
   description: {
-    type: Sequelize.STRING(255),
+    type: Sequelize.TEXT,
   },
   points: {
     type: Sequelize.INTEGER,
