@@ -343,7 +343,7 @@ const approveFlightPlanItem = async (flightPlanItemId) => {
 exports.rejectFlightPlanItem = async (flightPlanItemId) => {
   const t = await sequelize.transaction();
   try {
-    await Submission.destroy({ where: { flightPlanItemId }, transaction: t });
+    //await Submission.destroy({ where: { flightPlanItemId }, transaction: t });
 
     await FlightPlanItem.update(
       { status: "Rejected" },
