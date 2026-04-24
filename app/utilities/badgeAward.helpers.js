@@ -13,6 +13,7 @@ const Student = db.student;
 import FlightPlanUtils from "../sequelizeUtils/flightPlan.js";
 import FlightPlanItemUtils from "../sequelizeUtils/flightPlanItem.js";
 
+import { sendMail } from '../utilities/sendMail.js';
 import { Op } from "sequelize";
 const kickOffBadgeAwarding = async (flightPlanItemId) => {
   try {
@@ -203,6 +204,14 @@ const createBadgeNotification = async (badge, user) => {
     userId: user.id,
     read: false,
   });
+
+  const from = 'careerservices@oc.edu';
+  const to = user.email;
+  const subject = `Congratulations! You have been awarded the badge ${badge.name}`;
+  const body = `Congratulations! You have been awarded the badge ${badge.name} Visit https://flightplan.oc.edu/student/notifications to see more info.`;
+  const cc = null;
+  
+  await sendMail(from, to, cc, subject, body);
 };
 
 const checkBadgeCompletion = async (badge, completedFlightPlanItems, student) => {
