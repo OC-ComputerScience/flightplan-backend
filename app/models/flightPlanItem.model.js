@@ -17,6 +17,7 @@ const FlightPlanItem = SequelizeInstance.define(
         "Complete",
         "Incomplete",
         "Pending Review",
+        "Pending Re-Review",
         "Pending Attendance",
         "Awaiting Reflection",
         "Awaiting Document",

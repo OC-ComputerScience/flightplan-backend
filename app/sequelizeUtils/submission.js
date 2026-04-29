@@ -11,7 +11,18 @@ const Notification = db.notification;
 const exports = {};
 
 exports.create = async (submissionData) => {
+  const flightPlanItem = await FlightPlanItem.findOne({
+    where: { id: submissionData.flightPlanItemId },
+  })
+  let status = flightPlanItem.status;
+  console.log("Creating submission with data:", submissionData, "and status:", status);
+
   const t = await sequelize.transaction();
+  if (status != null && status == "Rejected") {
+    status = "Pending Re-Review";
+  } else {
+    status = "Pending Review";
+  }
 
   try {
     const submission = await Submission.create(submissionData, {
@@ -19,7 +30,7 @@ exports.create = async (submissionData) => {
     });
     if (!submissionData.isAutomatic) {
     await FlightPlanItem.update(
-      { status: "Pending Review" },
+      { status: status },
       { where: { id: submission.flightPlanItemId }, transaction: t },
     );
   }

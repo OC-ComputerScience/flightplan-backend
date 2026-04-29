@@ -17,6 +17,11 @@ const Submission = SequelizeInstance.define("submission", {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  reSubmissionCount: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+    allowNull: false
+  }
 });
 
 export default Submission;
