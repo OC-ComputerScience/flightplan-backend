@@ -4,7 +4,10 @@ const exports = {};
 
 exports.getStudentSemesterCount = async (req, res) => {
   try {
-    const studentCount = await Statistics.getStudentSemesterCount();
+    const semesterId = req.query.semesterId
+      ? Number(req.query.semesterId)
+      : null;
+    const studentCount = await Statistics.getStudentSemesterCount(semesterId);
     res.send({ studentCount });
   } catch (err) {
     res.status(500).send({
@@ -15,7 +18,11 @@ exports.getStudentSemesterCount = async (req, res) => {
 
 exports.getStudentCountsForCompletedItems = async (req, res) => {
   try {
-    const studentCounts = await Statistics.getStudentCountsForCompletedItems();
+    const semesterId = req.query.semesterId
+      ? Number(req.query.semesterId)
+      : null;
+    const studentCounts =
+      await Statistics.getStudentCountsForCompletedItems(semesterId);
     res.send({ studentCounts });
   } catch (err) {
     res.status(500).send({
