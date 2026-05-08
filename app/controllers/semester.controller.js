@@ -15,4 +15,17 @@ exports.findAll = async (req, res) => {
     });
 };
 
+exports.findAllUnfiltered = async (req, res) => {
+  await Semester.findAllSemestersUnfiltered()
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving semesters.",
+      });
+    });
+};
+
 export default exports;
