@@ -118,7 +118,16 @@ exports.login = async (req, res) => {
         email,
         fullName,
       });
-      
+
+      // Auto-assign faculty role for first-time users with @oc.edu email.
+      if (String(email).toLowerCase().endsWith("@oc.edu")) {
+        const [facultyRole] = await Role.findOrCreate({
+          where: { name: "faculty" },
+          defaults: { name: "faculty" },
+        });
+        await user.addRole(facultyRole);
+      }
+
     } else {
       await user.update({
         fName: firstName,

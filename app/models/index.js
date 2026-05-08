@@ -226,6 +226,10 @@ db.student.belongsTo(db.user, { as: "user", foreignKey: "userId" });
 // USERROLE
 User.belongsToMany(Role, { through: "userRole" });
 Role.belongsToMany(User, { through: "userRole" });
+db.userRole =
+  User.sequelize.models.userRole ||
+  User.sequelize.models.userRoles ||
+  null;
 
 // BADEXPTASK
 Badge.belongsToMany(Task, { through: db.badExpTask });

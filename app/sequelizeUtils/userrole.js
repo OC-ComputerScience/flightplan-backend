@@ -1,5 +1,8 @@
 import db from "../models/index.js";
-const UserRole = db.userRole;
+const UserRole =
+  db.userRole ||
+  db.user?.sequelize?.models?.userRole ||
+  db.user?.sequelize?.models?.userRoles;
 const Role = db.role;
 
 const exports = {};
@@ -16,7 +19,7 @@ exports.createUserRole = async (userRoleData) => {
   }
 
   // make sure we don't create a duplicate value
-  let existingUserRole = await this.findOneForUserForRole(
+  let existingUserRole = await exports.findOneForUserForRole(
     userRoleData.userId,
     userRoleData.roleId,
   );
@@ -43,7 +46,7 @@ exports.findOneUserRole = async (id) => {
 };
 
 exports.findAllUserRoles = async () => {
-  return await UserRole.findAll({ include: ["user"] });
+  return await UserRole.findAll();
 };
 
 exports.findAllRolesForUser = async (userId) => {
@@ -53,7 +56,7 @@ exports.findAllRolesForUser = async (userId) => {
     },
     include: {
       model: Role,
-      attributes: ["type"],
+      attributes: ["name"],
     },
   });
 };
@@ -72,7 +75,7 @@ exports.deleteUserRole = async (id) => {
 
 exports.findOneForUserForRole = async (userId, roleId) => {
   return await UserRole.findAll({
-    where: { userid: userId, roleId: roleId },
+    where: { userId: userId, roleId: roleId },
   });
 };
 
