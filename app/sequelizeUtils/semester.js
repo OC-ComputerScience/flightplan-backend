@@ -15,6 +15,12 @@ exports.findAllSemesters = async () => {
   });
 };
 
+exports.findAllSemestersUnfiltered = async () => {
+  return await Semester.findAll({
+    order: [["startDate", "ASC"]],
+  });
+};
+
 exports.getCurrentSemester = async () => {
   return await Semester.findOne({
     where: {

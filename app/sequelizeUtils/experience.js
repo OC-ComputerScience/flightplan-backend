@@ -91,22 +91,6 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery = "") => {
     ],
   });
 
-  exports.findAllActiveExperiences = async () => {
-    return await Experience.findAll({
-      where: {
-        status: "active",
-      },
-    });
-  };
-
-  exports.findAllInactiveExperiences = async () => {
-    return await Experience.findAll({
-      where: {
-        status: "inactive",
-      },
-    });
-  };
-
   const flightPlanItems = flightPlans.flatMap(
     (flightPlan) => flightPlan.flightPlanItems,
   );
@@ -126,6 +110,22 @@ exports.findAllOptionalForStudentId = async (studentId, searchQuery = "") => {
   );
 
   return filteredExperiences;
+};
+
+exports.findAllActiveExperiences = async () => {
+  return await Experience.findAll({
+    where: {
+      status: "active",
+    },
+  });
+};
+
+exports.findAllInactiveExperiences = async () => {
+  return await Experience.findAll({
+    where: {
+      status: "inactive",
+    },
+  });
 };
 
 exports.findOneExperience = async (experienceId) => {

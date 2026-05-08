@@ -14,6 +14,8 @@ router.get("/admin", [authenticate, isAdmin], user.findAllForAdmin);
 
 router.get("/admin/all", [authenticate], user.findAllAdmins);
 
+router.get("/email/:email", [authenticate], user.findByEmail);
+
 // Retrieve a single User with id
 router.get("/:id", [authenticate], user.findOne);
 
