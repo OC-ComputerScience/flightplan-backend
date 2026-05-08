@@ -8,7 +8,14 @@ const Semester = db.semester;
 
 const exports = {};
 
-exports.getStudentSemesterCount = async () => {
+exports.getStudentSemesterCount = async (semesterId = null) => {
+  const semesterWhere = semesterId
+    ? { id: semesterId }
+    : {
+        startDate: { [Op.lt]: new Date() },
+        endDate: { [Op.gt]: new Date() },
+      };
+
   const result = await FlightPlan.findAll({
     attributes: [
       [fn('COUNT', fn('DISTINCT', col('studentId'))), 'studentCount']
@@ -18,10 +25,7 @@ exports.getStudentSemesterCount = async () => {
         model: Semester,
         as: "semester",
         required: true,
-        where: {
-          startDate: { [Op.lt]: new Date() },
-          endDate: { [Op.gt]: new Date() }
-        }
+        where: semesterWhere,
       }
     ],
     raw: true
@@ -32,7 +36,10 @@ exports.getStudentSemesterCount = async () => {
   return studentCount;
 }
 
-exports.getStudentCountsForCompletedItems = async () => {
+exports.getStudentCountsForCompletedItems = async (semesterId = null) => {
+  const whereSemesterClause = semesterId
+    ? "s.id = :semesterId"
+    : "s.startDate < NOW() AND s.endDate > NOW()";
 
   const result = await SequelizeInstance.query(`
   SELECT fpItemCount, COUNT(fpItemCount) AS numOfStudents
@@ -41,16 +48,16 @@ exports.getStudentCountsForCompletedItems = async () => {
     FROM flightPlanItems fpi
     JOIN flightplans fp ON fpi.flightPlanId = fp.id
     JOIN semesters s ON fp.semesterId = s.id
-    WHERE s.startDate < NOW()
-      AND s.endDate > NOW()
+    WHERE ${whereSemesterClause}
       AND fpi.status = 'Complete'
     GROUP BY fpi.flightPlanId
   ) AS sub
   GROUP BY fpItemCount
   ORDER BY fpItemCount;
 `, {
-  type: db.Sequelize.QueryTypes.SELECT
-});
+    type: db.Sequelize.QueryTypes.SELECT,
+    replacements: semesterId ? { semesterId } : {},
+  });
 
   return result;
 }
