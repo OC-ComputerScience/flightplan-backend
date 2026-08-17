@@ -36,7 +36,12 @@ exports.findAll = async ({
     condition = { email: { [Op.like]: `%${email}%` } };
   }
 
-  return await User.findAndCountAll({ where: condition, offset, limit });
+  return await User.findAndCountAll({
+    where: condition,
+    offset,
+    limit,
+    include: [{ model: Student, as: "student", required: false }],
+  });
 };
 
 exports.findAllForAdmin = async ({
@@ -99,7 +104,37 @@ exports.findById = async (id) => {
 };
 
 exports.findByEmail = async (email) => {
-  return await User.findOne({ where: { email } });
+  const normalized = String(email || "").trim().toLowerCase();
+  if (!normalized) return null;
+  return await User.findOne({
+    where: { email: normalized },
+    include: [{ model: Student, as: "student", required: false }],
+  });
+};
+
+exports.findByEmails = async (emails = []) => {
+  const normalized = [
+    ...new Set(
+      (emails || [])
+        .map((email) => String(email || "").trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
+  if (normalized.length === 0) return [];
+
+  const withAliases = new Set(normalized);
+  for (const email of normalized) {
+    if (email.endsWith("@eagles.oc.edu")) {
+      withAliases.add(email.replace(/@eagles\.oc\.edu$/, "@oc.edu"));
+    } else if (email.endsWith("@oc.edu")) {
+      withAliases.add(`${email.slice(0, -"@oc.edu".length)}@eagles.oc.edu`);
+    }
+  }
+
+  return await User.findAll({
+    where: { email: { [Op.in]: [...withAliases] } },
+    include: [{ model: Student, as: "student", required: false }],
+  });
 };
 
 exports.update = async (id, updateData) => {

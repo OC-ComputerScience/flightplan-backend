@@ -73,6 +73,17 @@ exports.findByEmail = async (req, res) => {
     );
 };
 
+exports.lookupByEmails = async (req, res) => {
+  const emails = req.body?.emails || [];
+  await UserUtils.findByEmails(emails)
+    .then((data) => res.send(data))
+    .catch((err) =>
+      res.status(500).send({
+        message: err.message || "Some error occurred while looking up users.",
+      }),
+    );
+};
+
 exports.update = async (req, res) => {
   await UserUtils.update(req.params.id, req.body)
     .then((num) => {
