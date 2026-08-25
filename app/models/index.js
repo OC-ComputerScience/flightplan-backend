@@ -255,6 +255,11 @@ Student.belongsToMany(Reward, {
 Reward.belongsToMany(Student, {
   through: { model: StudentReward, unique: false },
 });
+StudentReward.belongsTo(Reward, { foreignKey: "rewardId", as: "reward" });
+StudentReward.belongsTo(User, {
+  foreignKey: "fulfillingUser",
+  as: "fulfilledBy",
+});
 
 // TASKMAJOR
 Task.belongsToMany(Major, { through: TaskMajor, foreignKey: "taskId" });
