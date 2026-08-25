@@ -16,10 +16,11 @@ import FlightPlanUtils from "../sequelizeUtils/flightPlan.js";
 const exports = {};
 
 exports.findStudentForUserId = async (userId) => {
-  return await Student.findOne({
+  const student = await Student.findOne({
     where: { userId },
     include: [{ model: Major, as: "majors" }],
   });
+  return await syncPointsAwardedIfMissing(student);
 };
 
 exports.getStudentWithFlightPlanInfo = async (studentId) => {
@@ -145,9 +146,10 @@ exports.findByIdWithUserAndMajors = async (id) => {
 };
 
 exports.findById = async (id) => {
-  return await Student.findByPk(id, {
+  const student = await Student.findByPk(id, {
     include: [{ model: User, as: "user" }],
   });
+  return await syncPointsAwardedIfMissing(student);
 };
 
 exports.update = async (id, updateData) => {
@@ -197,7 +199,7 @@ exports.addPoints = async (studentId, points) => {
     throw new Error("Student not found");
   }
 
-  const newPoints = student.pointsAwarded + points;
+  const newPoints = (Number(student.pointsAwarded) || 0) + (Number(points) || 0);
 
   return await Student.update(
     { pointsAwarded: newPoints },
@@ -207,7 +209,7 @@ exports.addPoints = async (studentId, points) => {
 
 exports.updatePoints = async (studentId, points) => {
   const student = await Student.findByPk(studentId);
-  const newPoints = student.pointsAwarded + points;
+  const newPoints = (Number(student.pointsAwarded) || 0) + (Number(points) || 0);
   return await Student.update(
     { pointsAwarded: newPoints },
     { where: { id: studentId } },
@@ -215,8 +217,50 @@ exports.updatePoints = async (studentId, points) => {
 };
 
 exports.getPoints = async (studentId) => {
-  const student = await Student.findByPk(studentId);
-  return student.pointsAwarded - student.pointsUsed;
+  const student = await syncPointsAwardedIfMissing(
+    await Student.findByPk(studentId),
+  );
+  return (Number(student.pointsAwarded) || 0) - (Number(student.pointsUsed) || 0);
+};
+
+const sumPointsFromCompletedItems = async (studentId) => {
+  const flightPlans = await FlightPlan.findAll({ where: { studentId } });
+  if (!flightPlans.length) return 0;
+
+  const items = await FlightPlanItem.findAll({
+    where: {
+      flightPlanId: { [Op.in]: flightPlans.map((flightPlan) => flightPlan.id) },
+      status: "Complete",
+    },
+    include: [
+      { model: Task, as: "task" },
+      { model: Experience, as: "experience" },
+    ],
+  });
+
+  return items.reduce((total, item) => {
+    const points =
+      item.flightPlanItemType === "Task"
+        ? item.task?.points
+        : item.experience?.points;
+    return total + (Number(points) || 0);
+  }, 0);
+};
+
+const syncPointsAwardedIfMissing = async (student) => {
+  if (!student) return student;
+  const storedAwarded = Number(student.pointsAwarded) || 0;
+  if (storedAwarded > 0) return student;
+
+  const computedAwarded = await sumPointsFromCompletedItems(student.id);
+  if (computedAwarded > 0) {
+    await Student.update(
+      { pointsAwarded: computedAwarded },
+      { where: { id: student.id } },
+    );
+    student.pointsAwarded = computedAwarded;
+  }
+  return student;
 };
 
 exports.getStudent = async (studentId) => {
