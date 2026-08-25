@@ -314,11 +314,14 @@ const approveFlightPlanItem = async (flightPlanItemId) => {
 
     const pointsAwarded =
       flightPlanItem.flightPlanItemType == "Task"
-        ? flightPlanItem.task.points
-        : flightPlanItem.experience.points;
+        ? flightPlanItem.task?.points
+        : flightPlanItem.experience?.points;
 
     await Student.update(
-      { pointsAwarded: student.pointsAwarded + pointsAwarded },
+      {
+        pointsAwarded:
+          (Number(student.pointsAwarded) || 0) + (Number(pointsAwarded) || 0),
+      },
       { where: { id: flightPlan.studentId }, transaction: t },
     );
 
