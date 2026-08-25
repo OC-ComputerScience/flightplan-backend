@@ -1,5 +1,8 @@
 import Reward from "../sequelizeUtils/reward.js";
 import FileHelpers from "../utilities/fileStorage.helper.js";
+import db from "../models/index.js";
+
+const Session = db.session;
 
 const exports = {};
 
@@ -190,10 +193,20 @@ exports.deleteRewardImage = async (req, res) => {
 
 exports.redeemReward = async (req, res) => {
   try {
+    let fulfillingUserId = req.body.userId;
+    const authHeader = req.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.slice(7);
+      const session = await Session.findOne({ where: { token } });
+      if (session?.userId) {
+        fulfillingUserId = session.userId;
+      }
+    }
+
     const result = await Reward.redeemReward(
       req.params.id,
       req.body.studentId,
-      req.body.userId,
+      fulfillingUserId,
     );
 
     res.status(200).json(result);
