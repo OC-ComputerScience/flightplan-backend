@@ -13,7 +13,7 @@ exports.dailyTasks = () => {
   // for testing, runs every minute
   // cron.schedule("* * * * *", async function () {
     console.log("Running daily tasks at 11:59 pm");
-    updateCurrentStudents();
+   // Remove until API is fixed-- updateCurrentStudents();
 
   });
 };
